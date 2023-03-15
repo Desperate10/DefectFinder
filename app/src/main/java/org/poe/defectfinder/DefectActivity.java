@@ -111,7 +111,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
             // Определяем разметку для использования при выборе элемента
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             // Применяем адаптер к элементу spinner
-            binding.searchableSpinner.setAdapter(adapter);
+            //binding.searchableSpinner.setAdapter(adapter);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -126,8 +126,8 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        binding.searchableSpinner.setTitle(getString(R.string.find_defect));
-        binding.searchableSpinner.setPositiveButton(getString(R.string.close_tab));
+        //binding.searchableSpinner.setTitle(getString(R.string.find_defect));
+        //binding.searchableSpinner.setPositiveButton(getString(R.string.close_tab));
         binding.continueBtn.setOnClickListener(this);
 
         SharedPreferences sharedPreferences = getSharedPreferences("filial", MODE_PRIVATE);
@@ -163,7 +163,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
                 ObjectsDao objectsDao = database.objectsDao();
                 DefectsDao defectsDao = database.defectsDao();
 
-                defectTxt = binding.searchableSpinner.getSelectedItem().toString();
+                //defectTxt = binding.searchableSpinner.getSelectedItem().toString();
                 Defects ifExists = defectsDao.getCurtainDefect(objId, opr, defectTxt);
                 if(ifExists != null) {
                     Toast.makeText(this, getString(R.string.opr_exists), Toast.LENGTH_SHORT).show();

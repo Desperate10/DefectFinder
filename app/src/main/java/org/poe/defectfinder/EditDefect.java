@@ -143,7 +143,7 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
             // Определяем разметку для использования при выборе элемента
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             // Применяем адаптер к элементу spinner
-            binding.searchableSpinner.setAdapter(adapter);
+            //binding.searchableSpinner.setAdapter(adapter);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,11 +224,11 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                 oldNote = defect.getNote();
                 binding.adds.setText(oldNote);
                 List<String> photos = defect.getPhotos();
-                binding.searchableSpinner.setSelection(adapter.getPosition(defectT));
+                //binding.searchableSpinner.setSelection(adapter.getPosition(defectT));
                 if(modificator.equals(Default.CONFIRM_MODIFICATOR))
-                binding.searchableSpinner.setEnabled(false);
-                Uri selectedImage = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.ic_add_photo);
-                addAddButton(selectedImage);
+                //binding.searchableSpinner.setEnabled(false);
+                //Uri selectedImage = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.ic_add_photo);
+               // addAddButton(selectedImage);
                 for (int i = 0; i< photos.size(); i++) {
                     uri.add(photos.get(i));
                     addAddButton(Uri.parse(photos.get(i)));
@@ -238,7 +238,7 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
     }
 
     private void saveData() {
-        String defectTxt = binding.searchableSpinner.getSelectedItem().toString();
+        //String defectTxt = binding.searchableSpinner.getSelectedItem().toString();
         /*if(defectTxt.contains("$") && uri.isEmpty()) {
             Toast.makeText(this, "Что бы сохранить этот дефект нужно добавить фото", Toast.LENGTH_SHORT).show();
             return;
@@ -257,7 +257,7 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                     objectsDao.updateModificator(objId, Default.EDIT_MODIFICATOR);
                 }
                 defectsDao.deleteCurtainDefect(objId, binding.oprSpinner.getSelectedItem().toString(), oldDefect);
-                defectsDao.insert(new Defects(objId, binding.oprSpinner.getSelectedItem().toString(), oprOrSpan, defectTxt, uri, note, Default.EDIT_MODIFICATOR));
+                //defectsDao.insert(new Defects(objId, binding.oprSpinner.getSelectedItem().toString(), oprOrSpan, defectTxt, uri, note, Default.EDIT_MODIFICATOR));
                 return 0;
             }
 
@@ -478,11 +478,11 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                     valid = false;
                 }*/
                 for (int i = 0; i< defects.size(); i++) {
-                    if(defects.get(i).getDefectName().equals(binding.searchableSpinner.getSelectedItem().toString()) && defects.get(i).getPhotos().size() == items.size() -1 && (oldNote !=null &&oldNote.equals(binding.adds.getText().toString()))) {
-                        Toast.makeText(this, getString(R.string.defect_exist_on_opr), Toast.LENGTH_SHORT).show();
-                        valid = false;
-                        break;
-                    }
+                    //if(defects.get(i).getDefectName().equals(binding.searchableSpinner.getSelectedItem().toString()) && defects.get(i).getPhotos().size() == items.size() -1 && (oldNote !=null &&oldNote.equals(binding.adds.getText().toString()))) {
+                    //    Toast.makeText(this, getString(R.string.defect_exist_on_opr), Toast.LENGTH_SHORT).show();
+                    //    valid = false;
+                    //    break;
+                    //}
                 }
                 if (valid) {
                     saveData();

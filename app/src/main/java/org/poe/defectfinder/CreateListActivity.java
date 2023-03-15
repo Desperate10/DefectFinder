@@ -106,9 +106,9 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
 
         binding.planSpinner.setOnItemSelectedListener(this);
         binding.lineOrTpSpinner.setOnItemSelectedListener(this);
-        binding.listSpinner.setTitle(getString(R.string.choose_object));
+        /*binding.listSpinner.setTitle(getString(R.string.choose_object));
         binding.listSpinner.setPositiveButton(getString(R.string.close_tab));
-        binding.listSpinner.setOnItemSelectedListener(this);
+        binding.listSpinner.setOnItemSelectedListener(this);*/
         binding.oprOrSpan.setOnItemSelectedListener(this);
         binding.listSpinner.setEnabled(false);
         binding.locationBtn.setOnClickListener(this);
@@ -244,7 +244,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
         line_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Set the adapter to th spinner
-        binding.listSpinner.setAdapter(line_adapter);
+        //binding.listSpinner.setAdapter(line_adapter);
     }
 
     @Override
@@ -381,7 +381,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                 break;
             case R.id.continue_btn:
                 if (validate()) {
-                    linename= binding.listSpinner.getSelectedItem().toString().split(" ", 2)[1];
+                    linename= binding.listSpinner.getText().toString().split(" ", 2)[1];
                     String plan;
                     if ( modificator.equals(Default.CONFIRM_MODIFICATOR)) plan = "";
                     else plan = binding.planSpinner.getSelectedItem().toString();
