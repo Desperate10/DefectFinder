@@ -51,7 +51,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class CreateListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, ObjectListDialogFragment.OnInputListener {
 
     private static final int REQUEST_LOCATION = 1;
     private static final long LOCATION_REFRESH_TIME = 5000;
@@ -111,6 +111,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
         binding.listSpinner.setOnItemSelectedListener(this);*/
         binding.oprOrSpan.setOnItemSelectedListener(this);
         binding.listSpinner.setEnabled(false);
+        binding.listSpinner.setOnClickListener(this);
         binding.locationBtn.setOnClickListener(this);
         binding.continueBtn.setOnClickListener(this);
     }
@@ -357,6 +358,10 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.list_spinner:
+                ObjectListDialogFragment fragment = ObjectListDialogFragment.newInstance(objects, "Виберіть об'єкт:");
+                fragment.show(getSupportFragmentManager(), "DialogFragment");
+                break;
             case R.id.location_btn:
                 Toast.makeText(this, R.string.func_not_working, Toast.LENGTH_LONG).show();
                 /*if(!objectType.equals(KL_OBJECT)) {
@@ -552,5 +557,10 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
             }
         }
         return valid;
+    }
+
+    @Override
+    public void sendInput(String input) {
+        binding.listSpinner.setText(input);
     }
 }
