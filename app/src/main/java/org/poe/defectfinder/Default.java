@@ -1,0 +1,13 @@
+package org.poe.defectfinder;
+
+public class Default {
+    //модификторы csv
+    public static String ADD_MODIFICATOR = "add";
+    public static String EDIT_MODIFICATOR = "edit";
+    public static String CONFIRM_MODIFICATOR = "confirm";
+
+    //модификатор обходного листа
+//    public static String FIND_DEFECT = "find";
+//    public static String REMOVE_DEFECT = "clear";
+
+}

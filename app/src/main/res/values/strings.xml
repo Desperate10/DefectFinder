@@ -1,0 +1,178 @@
+<resources>
+    <string name="app_name">DefectFinder</string>
+    <string name="spinner_prompt">Вибрати...</string>
+    <string name="add_photo">Додайте фото</string>
+    <string name="add_object_to_line">Додати новий об\'єкт</string>
+    <string name="msg_no_camera">Проблема з запуском камери</string>
+    <string name="enter_opr_name">Введіть назву опори</string>
+    <string name="near_objects_func_hint">або скористуйтеся функцією автоматичного пошуку найближчих об\'єктів</string>
+    <string name="to_choose_defect_hint">Щоб перейти до вибору дефекту - натисніть кнопку "Зберегти"</string>
+    <string name="save">Зберегти</string>
+    <string name="enter_opr_name_hint">Введіть назву опори</string>
+    <string name="defect_info">Опис дефекту</string>
+    <string name="note">Примітка</string>
+    <string name="go_continue">Продовжити</string>
+    <string name="defect_editor">Редактор дефектів</string>
+    <string name="add_defect_here">Додати дефект до цієї опори</string>
+    <string name="save_current_defect">Зберегти цей дефект</string>
+    <string name="delete_current_defect">Видалити цей дефект</string>
+    <string name="choose_what_to_do">Оберіть дію:</string>
+    <string name="add_defect_to_opr">Додати дефект до цієї опори/прольоту</string>
+    <string name="add_defect_to_new_opr">Додати дефект до нової опори/прольоту</string>
+    <string name="save_list">Зберегти листок огляду</string>
+    <string name="to_create_list_tabel_enter">Для створення листка огляду введіть табельний номер</string>
+    <string name="write_tabel">Введіть табельний номер</string>
+    <string name="create_list">Створити листок огляду</string>
+    <string name="create_list_done_defects">Створити листок огляду виправлення дефектів</string>
+    <string name="watch_lists">Переглянути збережені листки огляду</string>
+    <string name="watch_done_lists">Переглянути листки виправлених дефектів</string>
+    <string name="show_all_defects">Переглянути всі дефекти</string>
+    <string name="defect_done">Усунено</string>
+    <string name="write_login_hint">Введіть логін</string>
+    <string name="write_password_hint">Введіть пароль</string>
+    <string name="to_choose">Вибрати</string>
+    <string name="choose_filter">Введіть критерії пошуку:</string>
+    <string name="object_name">Назва об\'єкту</string>
+    <string name="tech_place">Технічне місце</string>
+    <string name="find">Пошук</string>
+    <string name="cancel">Скасувати</string>
+    <string name="line_name">Назва лінії</string>
+    <string name="round">Обхід</string>
+    <string name="status">Статус</string>
+    <string name="install">Встановити</string>
+    <string name="update">Оновити</string>
+    <string name="fix">Виправити</string>
+    <string name="choose_near_object">Виберіть об\'єкт поблизу:</string>
+    <string name="cant_find_geo">Неможливо визначити локацию</string>
+    <string name="turn_on_gps">Ввімкнути GPS?</string>
+    <string name="yes">Так</string>
+    <string name="no">Ні</string>
+    <string name="opr">Опора</string>
+    <string name="opr_name">Назва опори</string>
+    <string name="enter_span">Вкажіть проліт (приклад: 1-2)</string>
+    <string name="opr_already_created">Ця опора вже створена</string>
+    <string name="validate_hint1">Назва опори не повинна містити символи \"-\" (тире), \":\", \"_\", \";\" або кому</string>
+    <string name="validate_hint2">Назва прольоту не повинна містити символи \"-\"(тире)</string>
+    <string name="validate_hint3">Назва прольоту не повинна містити символи, окрім \"-\"(тире)</string>
+    <string name="creating_fixed_list">Створення листка огляду виправлених дефектів</string>
+    <string name="choose_object">Виберіть об\'єкт:</string>
+    <string name="close_tab">Закрити</string>
+    <string name="func_not_working">Функція недоступна. Напишіть Громову, якщо в ній є необхідність</string>
+    <string name="not_uploaded">Не вигружено</string>
+    <string name="line">Лінія</string>
+    <string name="find_defect">Знайти дефект</string>
+    <string name="opr_exists">В попередньо створеному листку вже є ця опора з таким дефектом</string>
+    <string name="defect_exist_on_opr">На цій опорі вже є дефекти</string>
+    <string name="do_photo">Зробити фото</string>
+    <string name="from_galery">Обрати з галереї</string>
+    <string name="photo_permission_granted">Дано дозвіл на використання камери</string>
+    <string name="defect_saved">Дефект збережено</string>
+    <string name="defect_deleted">Дефект видалено</string>
+    <string name="cant_delete_last_defect">Неможливо видилити єдиний дефект на опорі</string>
+    <string name="add_fixed_defect_to_current_opr">Додати виправлений дефект до цієї опори/прольоту</string>
+    <string name="add_fixed_defect_new_opr">Додати виправлений дефект до нової опори/прольоту</string>
+    <string name="save_fixed_list">Зберегти виправлений листок обгляду</string>
+    <string name="cant_add_opr_tp">Неможливо додати опору до ТП</string>
+    <string name="new_version">Нова версія!</string>
+    <string name="update_error">Оновлення провалено</string>
+    <string name="enter_valid_table_error">Введіть коректний табельний номер</string>
+    <string name="no_tabel_error">Такого табельного номера не існує</string>
+    <string name="not_fixed">Не усунено</string>
+    <string name="fixed">Вигружено</string>
+    <string name="delete_list">Видалити листок</string>
+    <string name="create_csv">Створити csv-файл</string>
+    <string name="edit_list">Редагувати листок</string>
+    <string name="choose_option">Оберіть дію:</string>
+    <string name="cant_add_opr">Неможливо додати опору до ТП або КЛ</string>
+    <string name="list_succ_deleted">Листок успішно видалено!</string>
+    <string name="r_sure_question">Ви впевнені?</string>
+    <string name="auth_error">Помилка аутентифікації</string>
+    <string name="go_fixing">Перейти до усунення</string>
+    <string name="add_opr">Додати опору</string>
+    <string name="in_process">В процесі</string>
+    <string name="end_of_lists">Кінець списку</string>
+
+    <string-array name="plan_array">
+        <item>Плановий</item>
+        <item>Позачерговий</item>
+    </string-array>
+
+    <string-array name="filials">
+        <item>0200  Велико-Кохнівська філія</item>
+        <item>0300  Гадяцька філія</item>
+        <item>0400  Глобинська філія</item>
+        <item>0500  Гребінківська філія</item>
+        <item>0600  Диканьська філія</item>
+        <item>0800  Зіньківська філія</item>
+        <item>0900  Карлівська філія</item>
+        <item>1000  Кобеляцька філія</item>
+        <item>1100  Козельщинська філія</item>
+        <item>1200  Комсомольська філія</item>
+        <item>1300  Котелевська філія</item>
+        <item>1400  Красногорівська філія</item>
+        <item>1500  Кременчуцька філія</item>
+        <item>1600  Лохвицька філія</item>
+        <item>1700  Лубенська філія</item>
+        <item>1800  Машівська філія</item>
+        <item>1900  Миргородська філія</item>
+        <item>2000  Ново-Санжарська філія</item>
+        <item>2100  Оржицька філія</item>
+        <item>2200  Пирятинська філія</item>
+        <item>2300  Полтавська філія МЕМ</item>
+        <item>2400  Решетилівська філія</item>
+        <item>2500  Семенівська філія</item>
+        <item>2600  Хорольська філія</item>
+        <item>2700  Чорнухинська філія</item>
+        <item>2800  Чутівська філія</item>
+        <item>2900  Шишацька філія</item>
+        <item>3100  Полтавський район РЕМ</item>
+
+    </string-array>
+
+    <string-array name="line_or_tp_array">
+        <item>Лінія 0,4кВ</item>
+        <item>Лінія 6-10кВ</item>
+        <item>ТП</item>
+        <item>КЛ</item>
+    </string-array>
+
+    <string-array name="opr_or_span_array">
+        <item>Опора</item>
+        <item>Проліт</item>
+    </string-array>
+
+    <string-array name="lines_array">
+        <item>2140498 ПЛ-10 кВ Л-3 М.Рублівка ПС В.Рублівка</item>
+        <item>2140507 ПЛ-10 кВ Л-4 Микілка ПС В.Рублівка 35/10</item>
+        <item>2140510 ПЛ-10 кВ Л-5 Україна ПС В.Рублівка 35/10</item>
+        <item>2140513 ПЛ-10 кВ Л-6 Мялівка ПС В.Рублівка 35/10</item>
+        <item>2140463 ПЛ-10 кВ Матвіївка ПС Милорадово 35/10кВ</item>
+        <item>2140422 ПЛ-10 кВ Маяк ПС Котельва 35/10 кВ</item>
+        <item>2140418 ПЛ-10 кВ Млинки ПС Котельва 35/10 кВ</item>
+    </string-array>
+
+    <string-array name="lines_array_4">
+        <item>2140498 ПЛ-0,4 кВ Л-3 М.Рублівка ПС В.Рублівка</item>
+        <item>2140507 ПЛ-0,4 кВ Л-4 Микілка ПС В.Рублівка 35/10</item>
+    </string-array>
+
+    <string-array name="tp_array">
+        <item>41234 ЗТП-50 смт.Котельва</item>
+        <item>53425 КТП-52 смт.Котельва</item>
+        <item>62435 КТП-53 смт.Котельва</item>
+        <item>41324 КТП-54 смт.Котельва</item>
+        <item>41234 КТП-56 смт.Котельва</item>
+        <item>41234 КТП-57 смт.Котельва</item>
+        <item>41324 КТП-58 смт.Котельва</item>
+        <item>41324 КТП-59 смт.Котельва</item>
+    </string-array>
+
+    <string-array name="defect">
+        <item>Дефект 1</item>
+        <item>Дефект 2</item>
+        <item>Дефект 3</item>
+        <item>Дефект 4</item>
+        <item>Дефект 5</item>
+        <item>Дефект 6</item>
+    </string-array>
+</resources>
