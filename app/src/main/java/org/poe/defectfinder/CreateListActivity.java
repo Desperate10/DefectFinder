@@ -131,6 +131,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
         binding.inputOpr.setVisibility(View.VISIBLE);
         binding.oprOrSpan.setVisibility(View.VISIBLE);
         objects = new ArrayList<>();
+        binding.listSpinner.setText(getString(R.string.choose_object));
 
         switch (position) {
             case 0:
@@ -168,50 +169,37 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
         binding.llProgressBar.getRoot().setVisibility(View.VISIBLE);
         //switch (objectType) {
           //  case LINE0_4_OBJECT:
-                api.getLowLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
+                api.getLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
                         List<ObjectsResponse> results = response.body();
                         for (int i = 0; i<results.size(); i++) {
-                            objects.add(results.get(i).getInvnr()+" "+results.get(i).getPltxt());
-                            lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                            if (objectType.equals(LINE0_4_OBJECT)) {
+                                objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                                lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                            }
                         }
                         setLineAdapter(objects);
-                        binding.llProgressBar.getRoot().setVisibility(View.GONE);
+                      //  binding.llProgressBar.getRoot().setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
               //  break;
-          //  case LINE6_10_OBJECT:
-                api.getLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
-                    @Override
-                    public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
-                        List<ObjectsResponse> results = response.body();
-                        for (int i = 0; i<results.size(); i++) {
-                            objects.add(results.get(i).getInvnr()+" "+results.get(i).getPltxt());
-                            lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
-                        }
-                        setLineAdapter(objects);
-                        binding.llProgressBar.getRoot().setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
-                });
-            //    break;
            // case TP_OBJECT:
                 api.getTpObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
                         List<ObjectsResponse> results = response.body();
                         for (int i = 0; i<results.size(); i++) {
-                            objects.add(results.get(i).getInvnr()+" "+results.get(i).getPltxt());
-                            lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                            if (objectType.equals(TP_OBJECT)) {
+                                objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                                lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                            }
                         }
                         setLineAdapter(objects);
-                        binding.llProgressBar.getRoot().setVisibility(View.GONE);
+                        //binding.llProgressBar.getRoot().setVisibility(View.GONE);
                     }
 
                     @Override
@@ -224,17 +212,38 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
                         List<ObjectsResponse> results = response.body();
                         for (int i = 0; i<results.size(); i++) {
-                            objects.add(results.get(i).getInvnr()+" "+results.get(i).getPltxt());
-                            lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                            if (objectType.equals(KL_OBJECT)) {
+                                objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                                lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                            }
                         }
                         setLineAdapter(objects);
-                        binding.llProgressBar.getRoot().setVisibility(View.GONE);
+                       // binding.llProgressBar.getRoot().setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
               //  break;
+        //  case LINE6_10_OBJECT:
+        api.getLineObjects(filial.substring(0,2), "high", "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
+            @Override
+            public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
+                List<ObjectsResponse> results = response.body();
+                for (int i = 0; i<results.size(); i++) {
+                    if (objectType.equals(LINE6_10_OBJECT)) {
+                        objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                        lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                    }
+                }
+                setLineAdapter(objects);
+                binding.llProgressBar.getRoot().setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
+        });
+        //    break;
         //}
         forceRefresh = false;
     }
