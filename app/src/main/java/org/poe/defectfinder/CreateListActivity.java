@@ -51,7 +51,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class CreateListActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, ObjectListDialogFragment.OnInputListener {
 
     private static final int REQUEST_LOCATION = 1;
     private static final long LOCATION_REFRESH_TIME = 5000;
@@ -111,6 +111,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
         binding.listSpinner.setOnItemSelectedListener(this);*/
         binding.oprOrSpan.setOnItemSelectedListener(this);
         binding.listSpinner.setEnabled(false);
+        binding.listSpinner.setOnClickListener(this);
         binding.locationBtn.setOnClickListener(this);
         binding.continueBtn.setOnClickListener(this);
     }
@@ -165,8 +166,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     private void getObjectsApiCall(String objectType) {
         lineToTplnr = new HashMap<>();
         binding.llProgressBar.getRoot().setVisibility(View.VISIBLE);
-        switch (objectType) {
-            case LINE0_4_OBJECT:
+        //switch (objectType) {
+          //  case LINE0_4_OBJECT:
                 api.getLowLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -182,8 +183,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-            case LINE6_10_OBJECT:
+              //  break;
+          //  case LINE6_10_OBJECT:
                 api.getLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -199,8 +200,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-            case TP_OBJECT:
+            //    break;
+           // case TP_OBJECT:
                 api.getTpObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -216,8 +217,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-            case KL_OBJECT:
+            //    break;
+            //case KL_OBJECT:
                 api.getKlObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -233,8 +234,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-        }
+              //  break;
+        //}
         forceRefresh = false;
     }
 
@@ -357,6 +358,10 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.list_spinner:
+                ObjectListDialogFragment fragment = ObjectListDialogFragment.newInstance(objects, "Виберіть об'єкт:");
+                fragment.show(getSupportFragmentManager(), "DialogFragment");
+                break;
             case R.id.location_btn:
                 Toast.makeText(this, R.string.func_not_working, Toast.LENGTH_LONG).show();
                 /*if(!objectType.equals(KL_OBJECT)) {
@@ -536,7 +541,11 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
 
     private boolean validate() {
         boolean valid = true;
-        if (binding.lineOrTpSpinner.getSelectedItem().toString().contains(getString(R.string.line))) {
+        if (binding.listSpinner.getText().toString().contains("Виберіть")) {
+            Toast.makeText(this, "Виберіть об'єкт", Toast.LENGTH_SHORT).show();
+            valid = false;
+        }
+        else if (binding.lineOrTpSpinner.getSelectedItem().toString().contains(getString(R.string.line))) {
             if (binding.oprOrSpan.getSelectedItem().toString().equals("Опора") && !(binding.inputOpr.getText().length() > 0)) {
                 binding.inputOpr.setError(getString(R.string.enter_opr_name));
                 valid = false;
@@ -552,5 +561,10 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
             }
         }
         return valid;
+    }
+
+    @Override
+    public void sendInput(String input) {
+        binding.listSpinner.setText(input);
     }
 }

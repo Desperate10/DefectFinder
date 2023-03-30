@@ -91,6 +91,8 @@
     <string name="add_opr">Додати опору</string>
     <string name="in_process">В процесі</string>
     <string name="end_of_lists">Кінець списку</string>
+    <string name="not_choose_defect">Ви не вибрали дефект</string>
+    <string name="select_line">Виберіть об\'єкт</string>
 
     <string-array name="plan_array">
         <item>Плановий</item>

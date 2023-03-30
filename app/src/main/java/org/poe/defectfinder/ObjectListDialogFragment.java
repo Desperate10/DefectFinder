@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,15 +28,18 @@ public class ObjectListDialogFragment extends DialogFragment {
 
     public OnInputListener mOnInputListener;
     private List<String> objects;
+    private String hint;
 
     private EditText mInput;
     private ListView mList;
+    private TextView dialogHint;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         objects = getArguments().getStringArrayList("OBJECTS");
+        hint = getArguments().getString("HINT");
     }
 
     @Override
@@ -51,6 +55,8 @@ public class ObjectListDialogFragment extends DialogFragment {
 
         mInput = view.findViewById(R.id.input);
         mList = view.findViewById(R.id.list_view);
+        dialogHint = view.findViewById(R.id.dialog_hint_tv);
+        dialogHint.setText(hint);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, objects);
         mList.setAdapter(adapter);
         mInput.addTextChangedListener(new TextWatcher() {
@@ -88,10 +94,11 @@ public class ObjectListDialogFragment extends DialogFragment {
         }
     }
 
-    public static ObjectListDialogFragment newInstance(ArrayList<String> objects) {
+    public static ObjectListDialogFragment newInstance(ArrayList<String> objects, String hint) {
         ObjectListDialogFragment fragment = new ObjectListDialogFragment();
         Bundle args = new Bundle();
         args.putStringArrayList("OBJECTS", objects);
+        args.putString("HINT", hint);
         fragment.setArguments(args);
         return fragment;
     }

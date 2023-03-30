@@ -67,17 +67,23 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/opr_spinner" />
 
-                <!--<com.toptoche.searchablespinnerlibrary.SearchableSpinner
+                <TextView
                     android:id="@+id/searchableSpinner"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/spinner_bg"
+                    android:padding="12dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@drawable/spinner_bg"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:gravity="center|left"
+                    android:text="Виберіть дефект"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/defect_spinner" />-->
+                    app:layout_constraintTop_toBottomOf="@id/defect_spinner" />
+
 
                 <GridView
                     android:id="@+id/photo_layout"
@@ -94,7 +100,7 @@
                     android:verticalSpacing="5dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/defect_spinner" />
+                    app:layout_constraintTop_toBottomOf="@id/searchableSpinner" />
             </LinearLayout>
 
             <EditText

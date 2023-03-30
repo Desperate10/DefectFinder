@@ -39,7 +39,7 @@ import androidx.core.app.ActivityCompat;
 public class AddOprToLine extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener{
 
     ActivityAddOprToLineBinding binding;
-    LocationManager mLocationManager;
+    //LocationManager mLocationManager;
     private static final int REQUEST_LOCATION = 1;
     private static final long LOCATION_REFRESH_TIME = 5000;
     private static final float LOCATION_REFRESH_DISTANCE = 50;
@@ -75,7 +75,7 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
         binding.oprOrSpan.setOnItemSelectedListener(this);
     }
 
-    @Override
+    /*@Override
     protected void onStop() {
         super.onStop();
         try{
@@ -121,7 +121,7 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         public void onProviderDisabled(@NonNull String provider) { }
-    };
+    };*/
 
     public ArrayList<LatLng> getLocationList(String lineName) {
         ArrayList<LatLng> latLngs = new ArrayList<>();
@@ -163,7 +163,10 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+
             case R.id.location_btn:
+                Toast.makeText(this, R.string.func_not_working, Toast.LENGTH_LONG).show();
+                /*
                 binding.oprOrSpan.setSelection(0);
 
                 mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -181,7 +184,7 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
                                 LOCATION_REFRESH_DISTANCE, mLocationListener);
                     }
                 }
-                break;
+                break;*/
             case R.id.continue_btn:
                 if (validate()) {
                     ObjectsDatabase database = App.getInstance().getDatabase();
@@ -203,7 +206,7 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private void OnGPS() {
+    /*private void OnGPS() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.turn_on_gps)).setCancelable(false)
                 .setPositiveButton(getString(R.string.yes), (dialog, which) ->
@@ -211,7 +214,7 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
                 .setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.cancel());
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
-    }
+    }*/
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

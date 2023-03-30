@@ -171,10 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(this, getString(R.string.update_error), Toast.LENGTH_SHORT).show();
                 // If the update is cancelled or fails,
                 // you can request to start the update again.
-            } else if (ActivityResult.RESULT_IN_APP_UPDATE_FAILED == requestCode) {
-                checkUpdate();
             }
-
         }
     }
 
@@ -262,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
     }
 
-    private boolean checkTabel(String tabel) {
+    /*private boolean checkTabel(String tabel) {
         boolean valid = false;
         try {
             InputStream inputStream = getResources().openRawResource(R.raw.tabel);
@@ -283,20 +280,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         return valid;
-    }
+    }*/
 
     boolean validate () {
         boolean valid = true;
 
         String tabel = binding.tabel.getText().toString();
 
-        if (tabel.isEmpty() || tabel.length() < 4) {
+        if (tabel.isEmpty() || tabel.length() < 4 || tabel.length() > 6) {
             binding.tabel.setError(getString(R.string.enter_valid_table_error));
             valid = false;
-        } else if(!checkTabel(tabel)){
+        } /*else if(!checkTabel(tabel)){
             binding.tabel.setError(getString(R.string.no_tabel_error));
             valid = false;
-        } else {
+        }*/ else {
             binding.tabel.setError(null);
         }
         return valid;

@@ -1,13 +1,12 @@
 package org.poe.defectfinder;
 
+import static org.poe.defectfinder.DefectActivity.PERMISSIONS_STORAGE;
+
 import android.Manifest;
 import android.content.ActivityNotFoundException;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,6 +15,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import org.poe.defectfinder.dao.DefectsDao;
 import org.poe.defectfinder.dao.ObjectsDao;
@@ -37,20 +44,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-
-import static org.poe.defectfinder.DefectActivity.PERMISSIONS_STORAGE;
-
-public class EditDefect extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class EditDefect extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, ObjectListDialogFragment.OnInputListener {
     private ActivityEditDefectBinding binding;
     private ArrayList<Image> items = new ArrayList<Image>();
     private ArrayList<String> uri = new ArrayList<>();
 
     Uri imageUri;
-    ArrayAdapter<String> adapter;
     ImageAdapter imageAdapter;
     String currentOpr;
     int pos;
@@ -60,10 +59,28 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
     List<String> oprs = new ArrayList<>();
     ArrayList<String> previousDefects = new ArrayList<>();
     private int objId;
-    private String modificator, tabel, oldDefect, oldNote,filial;
+    private String modificator, tabel, oldDefect, oldNote, filial;
     ObjectsDatabase db;
     DefectsDao defectsDao;
     ObjectsDao objectsDao;
+
+    private File tempImage = null;
+    ArrayList<String> strBuild = new ArrayList<>();
+
+    private Uri latestTmpUri;
+    private ActivityResultLauncher<Uri> takePhotoResult = registerForActivityResult(new ActivityResultContracts.TakePicture(), isSuccess -> {
+        if (isSuccess) {
+            Image i = new Image();
+            i.setURI(latestTmpUri);
+            items.add(i);
+            uri.add(latestTmpUri.toString());
+            imageAdapter.notifyDataSetChanged();
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            mediaScanIntent.setData(latestTmpUri);
+            this.sendBroadcast(mediaScanIntent);
+        }
+    });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,13 +116,19 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
 
         binding.continueBtn.setOnClickListener(this);
         binding.saveDefect.setOnClickListener(this);
-        if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
+        if (!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
             binding.addDefect.setOnClickListener(this);
             binding.deleteDefect.setOnClickListener(this);
         } else {
             binding.addDefect.setVisibility(View.GONE);
             binding.deleteDefect.setVisibility(View.GONE);
         }
+
+        /*try {
+            strBuild = getDefects(type, oprOrSpan);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 
     @Override
@@ -138,12 +161,7 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
 
     private void loadDefectTxt() {
         try {
-            ArrayList<String> strBuild = getDefects(type, oprOrSpan);
-            adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, strBuild);
-            // Определяем разметку для использования при выборе элемента
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            // Применяем адаптер к элементу spinner
-            //binding.searchableSpinner.setAdapter(adapter);
+            strBuild = getDefects(type, oprOrSpan);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,12 +242,12 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                 oldNote = defect.getNote();
                 binding.adds.setText(oldNote);
                 List<String> photos = defect.getPhotos();
-                //binding.searchableSpinner.setSelection(adapter.getPosition(defectT));
-                if(modificator.equals(Default.CONFIRM_MODIFICATOR))
-                //binding.searchableSpinner.setEnabled(false);
-                //Uri selectedImage = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.ic_add_photo);
-               // addAddButton(selectedImage);
-                for (int i = 0; i< photos.size(); i++) {
+                binding.searchableSpinner.setText(defect.getDefectName());
+                if (modificator.equals(Default.CONFIRM_MODIFICATOR))
+                    binding.searchableSpinner.setEnabled(false);
+                Uri selectedImage = Uri.parse("android.resource://" + getPackageName() + "/" + R.drawable.ic_add_photo);
+                addAddButton(selectedImage);
+                for (int i = 0; i < photos.size(); i++) {
                     uri.add(photos.get(i));
                     addAddButton(Uri.parse(photos.get(i)));
                 }
@@ -238,11 +256,15 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
     }
 
     private void saveData() {
-        //String defectTxt = binding.searchableSpinner.getSelectedItem().toString();
+        String defectTxt = binding.searchableSpinner.getText().toString();
         /*if(defectTxt.contains("$") && uri.isEmpty()) {
             Toast.makeText(this, "Что бы сохранить этот дефект нужно добавить фото", Toast.LENGTH_SHORT).show();
             return;
         }*/
+        if (defectTxt.contains("Виберіть")) {
+            Toast.makeText(this, getString(R.string.not_choose_defect), Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         new BackgroundTask(EditDefect.this) {
             @Override
@@ -253,11 +275,11 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                 String note = binding.adds.getText().toString();
 
                 objectsDao.updateDate(objId, strDate);
-                if(modificator.equals(Default.ADD_MODIFICATOR) || modificator.equals(Default.EDIT_MODIFICATOR) ) {
+                if (modificator.equals(Default.ADD_MODIFICATOR) || modificator.equals(Default.EDIT_MODIFICATOR)) {
                     objectsDao.updateModificator(objId, Default.EDIT_MODIFICATOR);
                 }
                 defectsDao.deleteCurtainDefect(objId, binding.oprSpinner.getSelectedItem().toString(), oldDefect);
-                //defectsDao.insert(new Defects(objId, binding.oprSpinner.getSelectedItem().toString(), oprOrSpan, defectTxt, uri, note, Default.EDIT_MODIFICATOR));
+                defectsDao.insert(new Defects(objId, binding.oprSpinner.getSelectedItem().toString(), oprOrSpan, defectTxt, uri, note, Default.EDIT_MODIFICATOR));
                 return 0;
             }
 
@@ -278,7 +300,8 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                     Uri uri = Uri.parse(photo);
                     try {
                         getContentResolver().delete(uri, null, null);
-                    } catch (SecurityException e) {}
+                    } catch (SecurityException e) {
+                    }
                 }
                 defectsDao.deleteCurtainDefect(objId, binding.oprSpinner.getSelectedItem().toString(), oldDefect);
                 return 0;
@@ -305,61 +328,40 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
         binding.defectSpinner.setAdapter(adapter);
     }
 
+    private void takePhoto() {
+        Uri uri = getTmpFileUri();
+        latestTmpUri = uri;
+        takePhotoResult.launch(uri);
+    }
+
+    private Uri getTmpFileUri() {
+        String filename = filial;
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        try {
+            tempImage = File.createTempFile(filename, ".jpg", storageDirectory);
+            tempImage.deleteOnExit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return imageUri = FileProvider.getUriForFile(
+                EditDefect.this,
+                "org.poe.defectfinder.fileprovider",
+                tempImage);
+    }
+
     private void selectPhoto() {
-        final CharSequence[] options = { getString(R.string.do_photo), getString(R.string.from_galery), getString(R.string.cancel) };
+        final CharSequence[] options = {getString(R.string.do_photo), getString(R.string.from_galery), getString(R.string.cancel)};
         AlertDialog.Builder builder = new AlertDialog.Builder(EditDefect.this);
         builder.setTitle(getString(R.string.add_photo));
         builder.setItems(options, (dialog, item) -> {
-            if (options[item].equals(getString(R.string.do_photo)))
-            {
-                String filename = filial;
-                File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                try {
-                    File tempImage = File.createTempFile(filename, ".jpg", storageDirectory);
-                    imageUri = FileProvider.getUriForFile(EditDefect.this, "org.poe.defectfinder.fileprovider", tempImage);
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
-                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    }
-                    else if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN) {
-                        ClipData clip=
-                                ClipData.newUri(getContentResolver(), "A photo", imageUri);
-
-                        intent.setClipData(clip);
-                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    }
-                    else {
-                        List<ResolveInfo> resInfoList=
-                                getPackageManager()
-                                        .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-
-                        for (ResolveInfo resolveInfo : resInfoList) {
-                            String packageName = resolveInfo.activityInfo.packageName;
-                            grantUriPermission(packageName, imageUri,
-                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        }
-                    }
-
-                    try {
-                        startActivityForResult(intent, 1);
-                    }
-                    catch (ActivityNotFoundException e) {
-                        Toast.makeText(this, R.string.msg_no_camera, Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            else if (options[item].equals(getString(R.string.from_galery)))
-            {
-                Intent intent = new   Intent(Intent.ACTION_OPEN_DOCUMENT,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            if (options[item].equals(getString(R.string.do_photo))) {
+                takePhoto();
+            } else if (options[item].equals(getString(R.string.from_galery))) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 // intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setFlags(intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivityForResult(intent, 2);
-            }
-            else if (options[item].equals(getString(R.string.cancel))) {
+            } else if (options[item].equals(getString(R.string.cancel))) {
                 dialog.dismiss();
             }
         });
@@ -399,12 +401,12 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                     // Log.d("absolute", copiedPath);
                     File file = new File(copiedPath);
                     selectedImage = FileProvider.getUriForFile(EditDefect.this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
-                   // Log.d("absolute", selectedImage.toString());
+                    // Log.d("absolute", selectedImage.toString());
                 } catch (Exception ex) {
                     selectedImage = data.getData();
-                   // Log.d("absolute1", selectedImage.toString());
+                    // Log.d("absolute1", selectedImage.toString());
                 }
-              //  Log.d("absolute2", selectedImage.toString());
+                //  Log.d("absolute2", selectedImage.toString());
                 Image i = new Image();
                 i.setURI(selectedImage);
                 uri.add(selectedImage.toString());
@@ -417,12 +419,17 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {}
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
 
     @Override
     public void onClick(View v) {
         Intent intent;
         switch (v.getId()) {
+            case R.id.searchableSpinner:
+                ObjectListDialogFragment fragment = ObjectListDialogFragment.newInstance(strBuild, "Виберіть дефект:");
+                fragment.show(getSupportFragmentManager(), "DialogFragment");
+                break;
             case R.id.continue_btn:
                 intent = new Intent(EditDefect.this, WatchCreatedLists.class);
                 intent.putExtra("tabel", tabel);
@@ -477,17 +484,22 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
                     Toast.makeText(this, "Этот дефект нельзя оставлять без фото", Toast.LENGTH_SHORT).show();
                     valid = false;
                 }*/
-                for (int i = 0; i< defects.size(); i++) {
-                    //if(defects.get(i).getDefectName().equals(binding.searchableSpinner.getSelectedItem().toString()) && defects.get(i).getPhotos().size() == items.size() -1 && (oldNote !=null &&oldNote.equals(binding.adds.getText().toString()))) {
-                    //    Toast.makeText(this, getString(R.string.defect_exist_on_opr), Toast.LENGTH_SHORT).show();
-                    //    valid = false;
-                    //    break;
-                    //}
+                for (int i = 0; i < defects.size(); i++) {
+                    if (defects.get(i).getDefectName().equals(binding.searchableSpinner.getText().toString()) && defects.get(i).getPhotos().size() == items.size() - 1 && (oldNote != null && oldNote.equals(binding.adds.getText().toString()))) {
+                        Toast.makeText(this, getString(R.string.defect_exist_on_opr), Toast.LENGTH_SHORT).show();
+                        valid = false;
+                        break;
+                    }
                 }
                 if (valid) {
                     saveData();
                 }
                 break;
         }
+    }
+
+    @Override
+    public void sendInput(String input) {
+        binding.searchableSpinner.setText(input);
     }
 }

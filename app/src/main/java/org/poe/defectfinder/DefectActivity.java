@@ -1,25 +1,26 @@
 package org.poe.defectfinder;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
-import android.content.ClipData;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import org.poe.defectfinder.dao.DefectsDao;
 import org.poe.defectfinder.dao.ObjectsDao;
@@ -30,11 +31,9 @@ import org.poe.defectfinder.other.ImageAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,15 +41,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-
-public class DefectActivity extends AppCompatActivity implements View.OnClickListener {
+public class DefectActivity extends AppCompatActivity implements View.OnClickListener, ObjectListDialogFragment.OnInputListener {
 
     public static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -70,6 +61,37 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
     private boolean isAddOpr, edit;
     private boolean repeat = false;
     private File tempImage = null;
+    private ArrayList<String> defects = new ArrayList<>();
+
+    private Uri latestTmpUri;
+    private List<Uri> selectedPhotos = new ArrayList();
+    private ActivityResultLauncher<Uri> takePhotoResult = registerForActivityResult(new ActivityResultContracts.TakePicture(), isSuccess -> {
+        if (isSuccess) {
+            Image i = new Image();
+            i.setURI(latestTmpUri);
+            items.add(i);
+            uri.add(latestTmpUri.toString());
+            imageAdapter.notifyDataSetChanged();
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            mediaScanIntent.setData(latestTmpUri);
+            this.sendBroadcast(mediaScanIntent);
+        }
+    });
+    private ActivityResultLauncher<String> pickMultiplePhoto = registerForActivityResult(new ActivityResultContracts.GetMultipleContents(),
+            result -> {
+                 selectedPhotos = result;
+                 for(int i = 0; i < selectedPhotos.size(); i++) {
+                    Image image = new Image();
+                    image.setURI(selectedPhotos.get(i));
+                    uri.add(selectedPhotos.get(i).toString());
+                    items.add(image);
+                    imageAdapter.notifyDataSetChanged();
+                }
+            });
+
+    private void photoPicker() {
+        pickMultiplePhoto.launch("image/*");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +126,13 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
                     100);
         }
 
-        ArrayList<String> strBuild = null;
+        try {
+            defects = getDefects(type, oprOrSpan);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*ArrayList<String> strBuild = null;
         try {
             strBuild = getDefects(type, oprOrSpan);
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, strBuild);
@@ -114,7 +142,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
             //binding.searchableSpinner.setAdapter(adapter);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         imageAdapter = new ImageAdapter(this, items, uri);
         binding.photoLayout.setAdapter(imageAdapter);
@@ -129,6 +157,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
         //binding.searchableSpinner.setTitle(getString(R.string.find_defect));
         //binding.searchableSpinner.setPositiveButton(getString(R.string.close_tab));
         binding.continueBtn.setOnClickListener(this);
+        binding.searchableSpinner.setOnClickListener(this);
 
         SharedPreferences sharedPreferences = getSharedPreferences("filial", MODE_PRIVATE);
         filial = sharedPreferences.getString("filial", "00");
@@ -158,12 +187,21 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.searchableSpinner:
+                ObjectListDialogFragment fragment = ObjectListDialogFragment.newInstance(defects, "Виберіть дефект:");
+                fragment.show(getSupportFragmentManager(), "DialogFragment");
+                break;
             case R.id.continue_btn:
+                defectTxt = binding.searchableSpinner.getText().toString();
+                if (defectTxt.contains("Виберіть дефект")) {
+                    Toast.makeText(this, getString(R.string.not_choose_defect), Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 ObjectsDatabase database = App.getInstance().getDatabase();
                 ObjectsDao objectsDao = database.objectsDao();
                 DefectsDao defectsDao = database.defectsDao();
 
-                //defectTxt = binding.searchableSpinner.getSelectedItem().toString();
+
                 Defects ifExists = defectsDao.getCurtainDefect(objId, opr, defectTxt);
                 if(ifExists != null) {
                     Toast.makeText(this, getString(R.string.opr_exists), Toast.LENGTH_SHORT).show();
@@ -239,6 +277,27 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    private void takePhoto() {
+        Uri uri = getTmpFileUri();
+        latestTmpUri = uri;
+        takePhotoResult.launch(uri);
+    }
+
+    private Uri getTmpFileUri() {
+        String filename = filial;
+        File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        try {
+            tempImage = File.createTempFile(filename, ".jpg", storageDirectory);
+            tempImage.deleteOnExit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return imageUri = FileProvider.getUriForFile(
+                DefectActivity.this,
+                "org.poe.defectfinder.fileprovider",
+                tempImage);
+    }
+
     private void selectPhoto() {
         final CharSequence[] options = { getString(R.string.do_photo), getString(R.string.from_galery), getString(R.string.cancel) };
         AlertDialog.Builder builder = new AlertDialog.Builder(DefectActivity.this);
@@ -246,52 +305,11 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals(getString(R.string.do_photo)))
             {
-                String filename = filial;
-                File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                try {
-                    tempImage = File.createTempFile(filename, ".jpg", storageDirectory);
-                    imageUri = FileProvider.getUriForFile(DefectActivity.this, "org.poe.defectfinder.fileprovider", tempImage);
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
-                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    }
-                    else if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN) {
-                        ClipData clip=
-                                ClipData.newUri(getContentResolver(), "A photo", imageUri);
-
-                        intent.setClipData(clip);
-                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    }
-                    else {
-                        List<ResolveInfo> resInfoList=
-                                getPackageManager()
-                                        .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-
-                        for (ResolveInfo resolveInfo : resInfoList) {
-                            String packageName = resolveInfo.activityInfo.packageName;
-                            grantUriPermission(packageName, imageUri,
-                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        }
-                    }
-
-                    try {
-                        startActivityForResult(intent, 1);
-                    }
-                    catch (ActivityNotFoundException e) {
-                        Toast.makeText(this, R.string.msg_no_camera, Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                takePhoto();
             }
             else if (options[item].equals(getString(R.string.from_galery)))
             {
-                Intent intent = new   Intent(Intent.ACTION_OPEN_DOCUMENT,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-               // intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setFlags(intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivityForResult(intent, 2);
+                photoPicker();
             }
             else if (options[item].equals(getString(R.string.cancel))) {
                 dialog.dismiss();
@@ -307,7 +325,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, getString(R.string.photo_permission_granted), Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Потрібно надати дозвіл на камеру в налаштуваннях вручну", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -373,15 +391,11 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
         if ("primary".equalsIgnoreCase(type)) {
             return Environment.getExternalStorageDirectory() + "/" + split[1];
         } else {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                //getExternalMediaDirs() added in API 21
-                File[] external = context.getExternalMediaDirs();
-                if (external.length > 1) {
-                    filePath = external[1].getAbsolutePath();
-                    filePath = filePath.substring(0, filePath.indexOf("Android")) + split[1];
-                }
-            } else {
-                filePath = "/storage/" + type + "/" + split[1];
+            //getExternalMediaDirs() added in API 21
+            File[] external = context.getExternalMediaDirs();
+            if (external.length > 1) {
+                filePath = external[1].getAbsolutePath();
+                filePath = filePath.substring(0, filePath.indexOf("Android")) + split[1];
             }
             return filePath;
         }
@@ -439,4 +453,8 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
         return strBuild;
     }
 
+    @Override
+    public void sendInput(String input) {
+        binding.searchableSpinner.setText(input);
+    }
 }
