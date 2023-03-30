@@ -10,12 +10,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -78,6 +80,7 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
             this.sendBroadcast(mediaScanIntent);
         }
     });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

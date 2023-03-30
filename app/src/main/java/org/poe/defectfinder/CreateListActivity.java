@@ -166,8 +166,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     private void getObjectsApiCall(String objectType) {
         lineToTplnr = new HashMap<>();
         binding.llProgressBar.getRoot().setVisibility(View.VISIBLE);
-        switch (objectType) {
-            case LINE0_4_OBJECT:
+        //switch (objectType) {
+          //  case LINE0_4_OBJECT:
                 api.getLowLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -183,8 +183,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-            case LINE6_10_OBJECT:
+              //  break;
+          //  case LINE6_10_OBJECT:
                 api.getLineObjects(filial.substring(0,2), objectType, "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -200,8 +200,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-            case TP_OBJECT:
+            //    break;
+           // case TP_OBJECT:
                 api.getTpObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -217,8 +217,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-            case KL_OBJECT:
+            //    break;
+            //case KL_OBJECT:
                 api.getKlObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
                     public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
@@ -234,8 +234,8 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     @Override
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
-                break;
-        }
+              //  break;
+        //}
         forceRefresh = false;
     }
 
@@ -541,7 +541,11 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
 
     private boolean validate() {
         boolean valid = true;
-        if (binding.lineOrTpSpinner.getSelectedItem().toString().contains(getString(R.string.line))) {
+        if (binding.listSpinner.getText().toString().contains("Виберіть")) {
+            Toast.makeText(this, "Виберіть об'єкт", Toast.LENGTH_SHORT).show();
+            valid = false;
+        }
+        else if (binding.lineOrTpSpinner.getSelectedItem().toString().contains(getString(R.string.line))) {
             if (binding.oprOrSpan.getSelectedItem().toString().equals("Опора") && !(binding.inputOpr.getText().length() > 0)) {
                 binding.inputOpr.setError(getString(R.string.enter_opr_name));
                 valid = false;

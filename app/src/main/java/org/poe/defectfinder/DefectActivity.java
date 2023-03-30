@@ -12,6 +12,7 @@ import android.provider.DocumentsContract;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -63,6 +64,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
     private ArrayList<String> defects = new ArrayList<>();
 
     private Uri latestTmpUri;
+    private List<Uri> selectedPhotos = new ArrayList();
     private ActivityResultLauncher<Uri> takePhotoResult = registerForActivityResult(new ActivityResultContracts.TakePicture(), isSuccess -> {
         if (isSuccess) {
             Image i = new Image();
@@ -75,6 +77,21 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
             this.sendBroadcast(mediaScanIntent);
         }
     });
+    private ActivityResultLauncher<String> pickMultiplePhoto = registerForActivityResult(new ActivityResultContracts.GetMultipleContents(),
+            result -> {
+                 selectedPhotos = result;
+                 for(int i = 0; i < selectedPhotos.size(); i++) {
+                    Image image = new Image();
+                    image.setURI(selectedPhotos.get(i));
+                    uri.add(selectedPhotos.get(i).toString());
+                    items.add(image);
+                    imageAdapter.notifyDataSetChanged();
+                }
+            });
+
+    private void photoPicker() {
+        pickMultiplePhoto.launch("image/*");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -292,10 +309,7 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
             }
             else if (options[item].equals(getString(R.string.from_galery)))
             {
-                Intent intent = new   Intent(Intent.ACTION_OPEN_DOCUMENT,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-               // intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setFlags(intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivityForResult(intent, 2);
+                photoPicker();
             }
             else if (options[item].equals(getString(R.string.cancel))) {
                 dialog.dismiss();
