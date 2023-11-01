@@ -86,7 +86,7 @@ import retrofit2.Response;
 import retrofit2.http.Multipart;
 
 
-public class WatchCreatedLists extends AppCompatActivity implements UploadRequestBody.UploadCallback {
+public class WatchCreatedLists extends AppCompatActivity implements UploadRequestBody.UploadCallback, LineIntervalDialogFragment.OnInputIntervalListener{
 
     static String notificationChannelID = "1";
 
@@ -175,11 +175,11 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
             public void onPostExecute(long id) {
                 listAdapter.notifyDataSetChanged();
                 try{
-                    Objects oject = objectsDao.getObject(pltxt, modificator);
+                    //Objects oject = objectsDao.getObject(pltxt, modificator);
                    // Log.d("testim", oject.getName());
                     for (int i = 0; i < sheetsList.size(); i++) {
                         if(sheetsList.get(i).getLinename().equals(pltxt) && sheetsList.get(i).getOpr().get(0).getDefect().get(0).getDefect().equals(defectTxt) && sheetsList.get(i).getModificator().equals(getString(R.string.not_fixed))) {
-                            loadImages(i);
+                            loadImages(i, "", "");
                         }
                     }
                 } catch (NullPointerException e) {}
@@ -368,20 +368,34 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                //     }
               //  }
                // if (vpnInUse) {
-                if(sheetsList.get(position).getModificator().equals(Default.CONFIRM_MODIFICATOR)) {
+                /*if(sheetsList.get(position).getModificator().equals(Default.CONFIRM_MODIFICATOR)) {
                     List<Opora> oporas = sheetsList.get(position).getOpr();
                     for (int i = 0; i < oporas.size(); i++) {
                         List<Defect> defects = oporas.get(i).getDefect();
                         for (int j = 0; j < defects.size(); j++) {
                             String defectstxt = defects.get(j).getDefect();
-                            /*if (defectstxt.contains("$") && defects.get(j).getPhoto().size() == 0) {
+                            *//*if (defectstxt.contains("$") && defects.get(j).getPhoto().size() == 0) {
                                 Toast.makeText(this, "Добавьте фото к дефектам со знаком $", Toast.LENGTH_SHORT).show();
                                 return;
-                            }*/
+                            }*//*
                         }
                     }
+                }*/
+                int type = sheetsList.get(position).getType();
+                switch (type) {
+                    case R.raw.line0_4:
+                    case R.raw.line6_10:
+                        if (!sheetsList.get(position).getStatus().equals(Default.CONFIRM_MODIFICATOR)) {
+                            LineIntervalDialogFragment lineIntervalDialogFragment = LineIntervalDialogFragment.newInstance(position);
+                            lineIntervalDialogFragment.show(getSupportFragmentManager(), "interval_dialog");
+                        } else {
+                            loadImages(position, "", "");
+                        }
+                        break;
+                    default:
+                        loadImages(position, "", "");
                 }
-                    loadImages(position);
+                    //loadImages(position);
                // } else {
                  //   Toast.makeText(this, "Подключитесь к VPN", Toast.LENGTH_SHORT).show();
                 //}
@@ -570,7 +584,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
         }.execute();
     }
 
-    private void loadImages(int position) {
+    private void loadImages(int position, String startOpr, String endOpr) {
         Toast.makeText(this, "Загрузка об'єкта " + sheetsList.get(position).getLinename()+ " почалась", Toast.LENGTH_LONG).show();
         //NOtification
         /*manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -617,45 +631,64 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                         // links = new ArrayList<>();
                         for (int k = 0; k < images.size(); k++) {
                             String photo = images.get(k);
-                           // Log.d("csv", photo);
+                            // Log.d("csv", photo);
                             files.add(photo);
                             //arraylist.add(photo)
                             //после stringbuilder сохранить в csv и взять стринговое uri и потом метод на отправку
                             //и добавить полосу загрузки и snackbar для оповещения вместо полосы загрузки?
                             Uri uri = Uri.parse(photo);
                             //File file1;
-                            String url= "fake";
+                            String url = "fake";
                             if (uri.getLastPathSegment().contains(".")) {
-                              //  file1 = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + uri.getLastPathSegment());
+                                //  file1 = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + uri.getLastPathSegment());
                                 //поменять урлы
-                                url = "smb://10.107.25.10/data/defects/"+filial+"/foto/" +filial+uri.getLastPathSegment();
+                                url = "smb://10.107.25.10/data/defects/" + filial + "/foto/" + filial + uri.getLastPathSegment();
                                 //files.add(filial+"/"+uri.getLastPathSegment()+".jpg");
                             } else {
-                             //   file1 = new File(getRealPathFromUri(WatchCreatedLists.this, uri, j, k));
-                                url = "smb://10.107.25.10/data/defects/"+filial+"/foto/" + filial+uri.getLastPathSegment() + ".jpg";
-                               // files.add(filial+"/"+uri.getLastPathSegment());
+                                //   file1 = new File(getRealPathFromUri(WatchCreatedLists.this, uri, j, k));
+                                url = "smb://10.107.25.10/data/defects/" + filial + "/foto/" + filial + uri.getLastPathSegment() + ".jpg";
+                                // files.add(filial+"/"+uri.getLastPathSegment());
                             }
-                            if( error) return;
+                            if (error) return;
                             //links.add(url);
-                            if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
-                                stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[]\n");
-                            } else {
-                           //     if(url.equals("fake")) {
-                                    stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];" + "\n");
-                            //    } else {
-                            //        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[fake];" + "\n");
-                           //     }
+                            //добавить старт и енд опр
+                            if (images.size() > 0) {
+                                if (!startOpr.isEmpty()) {
+                                    if (!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
+                                        stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[];;"+startOpr+";"+endOpr+"\n");
+                                    } else {
+                                        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];;"+startOpr+";"+endOpr+"\n");
+                                    }
+                                } else {
+                                    if (!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
+                                        stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[];X;;\n");
+                                    } else {
+                                        //     if(url.equals("fake")) {
+                                        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];X;;" + "\n");
+                                        //    } else {
+                                        //        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[fake];" + "\n");
+                                        //     }
+                                    }
+                                    //  uploadPhotos(url, file1);
+                                    //  if (k == images.size()-1) {
+                                    //     checkLastPhoto(url);
+                                    //}
+                                }
                             }
-                          //  uploadPhotos(url, file1);
-                          //  if (k == images.size()-1) {
-                           //     checkLastPhoto(url);
-                            //}
                         }
                         if (images.size() == 0) {
-                            if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
-                                stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[]\n");
+                            if (!startOpr.isEmpty()) {
+                                if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
+                                    stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[];;"+startOpr+";"+endOpr+"\n");
+                                } else {
+                                    stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake];;"+startOpr+";"+endOpr+"\n");
+                                }
                             } else {
-                                stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake]\n");
+                                if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
+                                    stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[];X;;\n");
+                                } else {
+                                    stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake];X;;\n");
+                                }
                             }
                         }
                         //Дописать картинки в конец каждого дефекта и переходим к записи следующего
@@ -735,6 +768,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
             // other 'case' lines to check for other
             // permissions this app might request
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -756,4 +790,8 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
         finish();
     }
 
+    @Override
+    public void sendInterval(int position, String start, String end) {
+        loadImages(position, start, end);
+    }
 }

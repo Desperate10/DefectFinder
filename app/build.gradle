@@ -9,8 +9,8 @@ android {
         applicationId "org.poe.defectfinder"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 56
-        versionName "4.4"
+        versionCode 57
+        versionName "4.4.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
