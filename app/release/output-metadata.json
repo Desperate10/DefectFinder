@@ -1,18 +1,20 @@
 {
-  "version": 2,
+  "version": 3,
   "artifactType": {
     "type": "APK",
     "kind": "Directory"
   },
   "applicationId": "org.poe.defectfinder",
-  "variantName": "processReleaseResources",
+  "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 49,
-      "versionName": "4.2.1",
-      "outputFile": "DefectFinder-4.2.1.apk"
+      "attributes": [],
+      "versionCode": 59,
+      "versionName": "4.4.3",
+      "outputFile": "DefectFinder-4.4.3-beta.apk"
     }
-  ]
+  ],
+  "elementType": "File"
 }

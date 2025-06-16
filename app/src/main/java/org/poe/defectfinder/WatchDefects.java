@@ -212,8 +212,9 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                 return isLoading;
             }
         });*/
-        if( pltxtSaved != null)
-        loadFirstPage(pltxtSaved);
+        if( pltxtSaved != null) {
+            loadFirstPage(pltxtSaved);
+        }
 
         showFindDialog();
 
