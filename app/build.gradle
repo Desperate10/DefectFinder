@@ -21,9 +21,21 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = new File("DefectFinder-${variant.versionName}-beta.apk")
+                    def suffix = variant.flavorName == 'direct' ? 'direct' : 'beta'
+                    outputFileName = new File("DefectFinder-${variant.versionName}-${suffix}.apk")
                 }
             }
+        }
+    }
+    // play: Google Play installs and updates it (Play In-App Updates);
+    // direct: the APK installed by hand on phones without Google Play, updates itself from the DefectFinder server
+    flavorDimensions = ['distribution']
+    productFlavors {
+        play {
+            dimension 'distribution'
+        }
+        direct {
+            dimension 'distribution'
         }
     }
     buildFeatures {
@@ -37,16 +49,48 @@ android {
     namespace 'org.poe.defectfinder'
 }
 
+// Raise when old versions must update before uploading again: below it the update dialog can't be put off.
+// The backend should refuse uploads from them too.
+def updateMinVersionCode = 0
+
+// release.json is exactly what GET app/release returns. It is written next to the directRelease APK,
+// wherever the signing wizard puts it, from the version above and src/direct/release-notes.txt
+// (one item per line). A release = the APK into the server's app/update/, then this file as app/release.
+android.applicationVariants.all { variant ->
+    if (variant.name != 'directRelease') return
+    def notesFile = file('src/direct/release-notes.txt')
+    variant.packageApplicationProvider.configure { task ->
+        task.inputs.file(notesFile)
+        task.doLast {
+            def outDir = task.outputDirectory.get().asFile
+            def apk = outDir.listFiles().find { it.name.endsWith('.apk') }
+            def notes = notesFile.readLines('UTF-8').collect { it.trim() }.findAll { it }
+                    .collect { '• ' + it }.join('\n')
+            def release = [
+                    versionCode   : variant.versionCode,
+                    versionName   : variant.versionName,
+                    minVersionCode: updateMinVersionCode,
+                    notes         : notes,
+                    apk           : 'update/' + apk.name,
+                    size          : apk.length(),
+                    sha256        : apk.bytes.digest('SHA-256'),
+            ]
+            // one field per line, the Ukrainian notes readable instead of \u escapes
+            def gen = new groovy.json.JsonGenerator.Options().disableUnicodeEscaping().build()
+            def json = '{\n' + release.collect { k, v -> "    \"${k}\": ${gen.toJson(v)}" }.join(',\n') + '\n}\n'
+            new File(outDir, 'release.json').write(json, 'UTF-8')
+        }
+    }
+}
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.activity:activity:1.9.0'
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    // So, make sure you also include that repository in your project's build.gradle file.
-    implementation 'com.google.android.play:app-update:2.1.0'
-    // For Kotlin users also add the Kotlin extensions library for Play In-App Update:
-    implementation 'com.google.android.play:app-update-ktx:2.1.0'
+    // Play In-App Updates: only in the Play build, the direct one updates from the DefectFinder server
+    playImplementation 'com.google.android.play:app-update:2.1.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.google.code.gson:gson:2.9.0'

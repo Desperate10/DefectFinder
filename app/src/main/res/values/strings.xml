@@ -191,4 +191,42 @@
         <item>Дефект 5</item>
         <item>Дефект 6</item>
     </string-array>
+
+    <!-- оновлення застосунку (update/UpdatePrompt, DirectAppUpdater, PlayAppUpdater) -->
+    <string name="update_title">Доступне оновлення</string>
+    <string name="update_required_title">Потрібне оновлення</string>
+    <string name="update_required_text">Ця версія застаріла. Оновіть застосунок, щоб відправляти листки.</string>
+    <string name="update_unavailable_play">Оновіть застосунок у Google Play.</string>
+    <string name="update_unavailable_direct">Нової версії ще немає на сервері. Повідомте адміністратора.</string>
+    <string name="update_size">Розмір: %1$.1f МБ</string>
+    <string name="update_downloading">Завантаження…</string>
+    <string name="update_downloading_pct">Завантаження: %1$d%%</string>
+    <string name="update_ready_direct">Оновлення завантажено. Під час встановлення DefectFinder закриється: потім відкрийте його знову.</string>
+    <string name="update_done_channel">Оновлення застосунку</string>
+    <string name="update_done_title">DefectFinder оновлено</string>
+    <string name="update_done_text">Встановлено версію %1$s. Натисніть, щоб відкрити.</string>
+    <string name="update_ready_play">Оновлення завантажено. Застосунок перезапуститься.</string>
+    <string name="update_installing">Встановлення…</string>
+    <string name="update_later">Пізніше</string>
+    <string name="update_download">Завантажити</string>
+    <string name="update_start_play">Оновити</string>
+    <string name="update_open_play">Відкрити Google Play</string>
+    <string name="update_install">Встановити</string>
+    <string name="update_restart">Перезапустити</string>
+    <string name="update_wait">Зачекайте…</string>
+    <string name="update_err_interrupted">Завантаження перервалося. Перевірте інтернет і натисніть ще раз: продовжиться з того ж місця.</string>
+    <string name="update_err_download">Не вдалося завантажити оновлення: %1$s</string>
+    <string name="update_err_url">Невірна адреса оновлення на сервері. Повідомте адміністратора.</string>
+    <string name="update_err_corrupt">Файл пошкоджено під час завантаження. Натисніть ще раз, щоб завантажити заново.</string>
+    <string name="update_err_not_app">Завантажений файл не є застосунком. Повідомте адміністратора.</string>
+    <string name="update_err_other_app">На сервері викладено інший застосунок (%1$s). Повідомте адміністратора.</string>
+    <string name="update_err_old_version">На сервері та сама або старіша версія. Повідомте адміністратора.</string>
+    <string name="update_err_other_key">Оновлення підписане іншим ключем, ніж цей застосунок (наприклад, тестова збірка), тож Android його не встановить. Повідомте адміністратора.</string>
+    <string name="update_err_permission">Дозвольте DefectFinder встановлювати застосунки: увімкніть перемикач, поверніться назад і натисніть «Встановити» ще раз.</string>
+    <string name="update_err_storage">Замало місця на телефоні для встановлення.</string>
+    <string name="update_err_conflict">Android не дозволив замінити застосунок (інший ключ підпису). Повідомте адміністратора.</string>
+    <string name="update_err_blocked">Встановлення заблоковано налаштуваннями телефону.</string>
+    <string name="update_err_install">Не вдалося встановити оновлення%1$s</string>
+    <string name="update_err_play_download">Google Play не зміг завантажити оновлення (код %1$d). Спробуйте ще раз.</string>
+    <string name="update_err_play_flow">Google Play не відкрив оновлення. Спробуйте ще раз.</string>
 </resources>

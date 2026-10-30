@@ -28,6 +28,10 @@ public interface MyApi {
     @POST("tokencheck")
     Call<Response> checkTokenValidity(@Body String token);
 
+    // no Authorization: a phone whose login expired must still be able to update
+    @GET("release")
+    Call<AppRelease> release();
+
     @Multipart
     @POST("defects")
     Call<UploadResponse> uploadDefects(@Part List<MultipartBody.Part> files,

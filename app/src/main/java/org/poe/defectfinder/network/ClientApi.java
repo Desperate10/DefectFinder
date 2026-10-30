@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ClientApi {
 
-    private static final String BASE_URL = "http://task.poe.pl.ua:8880/app/";
+    public static final String BASE_URL = "http://task.poe.pl.ua:8880/app/";
 
     private static ClientApi mInstance;
 

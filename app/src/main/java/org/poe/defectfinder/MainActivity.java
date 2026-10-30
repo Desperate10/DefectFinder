@@ -1,7 +1,6 @@
 package org.poe.defectfinder;
 
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,23 +9,13 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.play.core.appupdate.AppUpdateManager;
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
-import com.google.android.play.core.install.InstallState;
-import com.google.android.play.core.install.InstallStateUpdatedListener;
-import com.google.android.play.core.install.model.ActivityResult;
-import com.google.android.play.core.install.model.AppUpdateType;
-import com.google.android.play.core.install.model.InstallStatus;
-import com.google.android.play.core.install.model.UpdateAvailability;
 
 import org.poe.defectfinder.databinding.ActivityMainBinding;
 import org.poe.defectfinder.network.ClientApi;
 import org.poe.defectfinder.network.MyApi;
 import org.poe.defectfinder.network.Response;
 import org.poe.defectfinder.other.CustomLoginDialog;
+import org.poe.defectfinder.update.UpdatePrompt;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,8 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -44,13 +31,12 @@ import retrofit2.Callback;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int MY_REQUEST_CODE = 100;
     ActivityMainBinding binding;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     private String filial;
     private MyApi api;
-    private AppUpdateManager appUpdateManager;
+    private UpdatePrompt updatePrompt;
     String tabel, token;
 
     @Override
@@ -61,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(view);
 
         binding.versionLabel.setText("v" + BuildConfig.VERSION_NAME);
+        updatePrompt = new UpdatePrompt(this);
 
         api = ClientApi.getInstance(this).getApi();
 
@@ -101,84 +88,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        checkUpdate();
+        // play build: Google Play; direct build: the DefectFinder server
+        updatePrompt.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        appUpdateManager.unregisterListener(installStateUpdatedListener);
-    }
-
-    private void checkUpdate() {
-        appUpdateManager = AppUpdateManagerFactory.create(this);
-        appUpdateManager.registerListener(installStateUpdatedListener);
-        appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                try {
-                    appUpdateManager.startUpdateFlowForResult(
-                            appUpdateInfo, AppUpdateType.FLEXIBLE /*AppUpdateType.IMMEDIATE*/, MainActivity.this, MY_REQUEST_CODE);
-
-                } catch (IntentSender.SendIntentException e) {
-                    e.printStackTrace();
-                }
-
-            } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED){
-                //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
-                popupSnackbarForCompleteUpdate();
-            } else {
-              //  Log.e(TAG, "checkForAppUpdateAvailability: something else");
-            }
-        });
-    }
-
-    InstallStateUpdatedListener installStateUpdatedListener = new
-            InstallStateUpdatedListener() {
-                @Override
-                public void onStateUpdate(@NonNull InstallState state) {
-                    if (state.installStatus() == InstallStatus.DOWNLOADED){
-                        //CHECK THIS if AppUpdateType.FLEXIBLE, otherwise you can skip
-                        popupSnackbarForCompleteUpdate();
-                    } else if (state.installStatus() == InstallStatus.INSTALLED){
-                        if (appUpdateManager != null){
-                            appUpdateManager.unregisterListener(installStateUpdatedListener);
-                        }
-                    } else {
-                       // Log.i(TAG, "InstallStateUpdatedListener: state: " + state.installStatus());
-                    }
-                }
-            };
-
-    private void popupSnackbarForCompleteUpdate() {
-
-        Snackbar snackbar =
-                Snackbar.make(
-                        findViewById(R.id.coord),
-                        getString(R.string.new_version),
-                        Snackbar.LENGTH_INDEFINITE);
-
-        snackbar.setAction(getString(R.string.install), view -> {
-            if (appUpdateManager != null){
-                appUpdateManager.completeUpdate();
-            }
-        });
-
-
-        snackbar.setActionTextColor(getResources().getColor(R.color.design_default_color_on_secondary));
-        snackbar.show();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == MY_REQUEST_CODE) {
-            if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, getString(R.string.update_error), Toast.LENGTH_SHORT).show();
-                // If the update is cancelled or fails,
-                // you can request to start the update again.
-            }
-        }
+        updatePrompt.stop();
     }
 
     private void checkFilial() {
