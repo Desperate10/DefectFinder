@@ -147,8 +147,11 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
             public void onResponse(Call<org.poe.defectfinder.network.Response> call, Response<org.poe.defectfinder.network.Response> response) {
                 if(response.code() == 200) {
                    // Log.d("tokenyk", response.body().getError()+ " " +response.body().getMessage());
-                    if (response.body().getError().equals("true")) {
-                        CustomLoginDialog customLoginDialog = new CustomLoginDialog(WatchCreatedLists.this);
+                    // Skip if the dialog was already restored after recreation, or the screen is being saved
+                    if (response.body().getError().equals("true")
+                            && !getSupportFragmentManager().isStateSaved()
+                            && getSupportFragmentManager().findFragmentByTag("login_dialog") == null) {
+                        CustomLoginDialog customLoginDialog = new CustomLoginDialog();
                         customLoginDialog.setCancelable(false);
                         customLoginDialog.show(getSupportFragmentManager(), "login_dialog");
                     }

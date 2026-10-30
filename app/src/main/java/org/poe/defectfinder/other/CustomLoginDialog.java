@@ -1,7 +1,6 @@
 package org.poe.defectfinder.other;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,18 +33,17 @@ public class CustomLoginDialog extends DialogFragment {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     MyApi api;
-    Context context;
 
-    public CustomLoginDialog(Context context) {
-        this.context = context;
-    }
+    // Android recreates the dialog through this constructor after the app is updated or killed,
+    // so it must have no arguments; the context comes from the fragment itself.
+    public CustomLoginDialog() {}
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
        sharedPreferences = getActivity().getApplicationContext().getSharedPreferences("filial", MODE_PRIVATE);
 
-        api = ClientApi.getInstance(context).getApi();
+        api = ClientApi.getInstance(requireContext()).getApi();
         View view = getActivity().getLayoutInflater().inflate(R.layout.custom_login_layout, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Аутентификація");
