@@ -11,6 +11,7 @@ import org.poe.defectfinder.databinding.ActivityLastBinding;
 
 import java.util.ArrayList;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LastActivity extends AppCompatActivity implements View.OnClickListener {
@@ -28,6 +29,13 @@ public class LastActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityLastBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        // Android 16 no longer calls onBackPressed() for apps targeting it: back goes through the dispatcher
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        });
 
         Bundle bundle = getIntent().getExtras();
         if (bundle !=null) {
@@ -92,9 +100,8 @@ public class LastActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    private void goBack() {
+        finish();
         Toast.makeText(this, getString(R.string.save_list), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(LastActivity.this, WatchCreatedLists.class);
         intent.putExtra("mod", modificator);

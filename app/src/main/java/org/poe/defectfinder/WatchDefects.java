@@ -2,6 +2,7 @@ package org.poe.defectfinder;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -98,6 +99,13 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_watch_defects);
+        // Android 16 no longer calls onBackPressed() for apps targeting it: back goes through the dispatcher
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        });
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -847,9 +855,8 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
         return defectTxt;
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    private void goBack() {
+        finish();
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("tabel", tabel);
         startActivity(intent);

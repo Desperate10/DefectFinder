@@ -18,6 +18,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -113,6 +114,13 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
         binding = ActivityDefectBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        // Android 16 no longer calls onBackPressed() for apps targeting it: back goes through the dispatcher
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        });
 
         previousDefects = new ArrayList<>();
 
@@ -390,9 +398,8 @@ public class DefectActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    private void goBack() {
+        finish();
         for (int i = 1; i < items.size(); i++) {
             try {
                 getContentResolver().delete(items.get(i).getURI(), null, null);

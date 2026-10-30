@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
@@ -111,6 +112,13 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
         binding = ActivityWatchCreatedListsBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        // Android 16 no longer calls onBackPressed() for apps targeting it: back goes through the dispatcher
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        });
 
         api = ClientApi.getInstance(this).getApi();
 
@@ -813,9 +821,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
+    private void goBack() {
         Intent intent;
         if (tabel == null) {
             intent = new Intent(WatchCreatedLists.this, MainActivity.class);

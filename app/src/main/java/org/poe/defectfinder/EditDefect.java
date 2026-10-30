@@ -16,6 +16,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
@@ -107,6 +108,13 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
         binding = ActivityEditDefectBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        // Android 16 no longer calls onBackPressed() for apps targeting it: back goes through the dispatcher
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                goBack();
+            }
+        });
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -154,9 +162,8 @@ public class EditDefect extends AppCompatActivity implements AdapterView.OnItemS
         }*/
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    private void goBack() {
+        finish();
         Intent intent = new Intent(this, WatchCreatedLists.class);
         intent.putExtra("mod", modificator);
         intent.putExtra("tabel", tabel);
