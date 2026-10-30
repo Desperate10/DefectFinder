@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {Objects.class, Defects.class}, version = 5, exportSchema = false)
+@Database(entities = {Objects.class, Defects.class}, version = 6, exportSchema = false)
 public abstract class ObjectsDatabase extends RoomDatabase {
 
     abstract ObjectsDao objectsDao();
@@ -50,6 +50,14 @@ public abstract class ObjectsDatabase extends RoomDatabase {
             database.execSQL("ALTER TABLE objects ADD COLUMN thermalNotDone INTEGER NOT NULL DEFAULT 0");
             database.execSQL("ALTER TABLE objects ADD COLUMN defectsFound INTEGER NOT NULL DEFAULT 0");
             database.execSQL("ALTER TABLE objects ADD COLUMN defectsAbsent INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    public static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Lists uploaded before this version get 0 and stay locked: their send time is unknown.
+            database.execSQL("ALTER TABLE objects ADD COLUMN sentAt INTEGER NOT NULL DEFAULT 0");
         }
     };
 }

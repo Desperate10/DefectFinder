@@ -218,6 +218,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
             sheet.setHighVoltage(obj.isHighVoltage());
             sheet.setThermalDoneOk(obj.isThermalDoneOk());
             sheet.setDefectsFound(obj.isDefectsFound());
+            sheet.setSentAt(obj.getSentAt());
             sheetsList.add(sheet);
         }
 
@@ -348,9 +349,21 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
         }
     }*/
 
+    // Sent add/edit lists can be reopened for EDIT_WINDOW_MS after the first upload.
+    private long editTimeLeft(Sheet sheet) {
+        if (sheet.getModificator().equals(Default.CONFIRM_MODIFICATOR) || sheet.getSentAt() == 0) return 0;
+        return Math.max(0, sheet.getSentAt() + Default.EDIT_WINDOW_MS - System.currentTimeMillis());
+    }
+
     private void createMenuDialog(int position) {
         final CharSequence[] options;// = { "Создать csv-файл", "Добавить опору", "Редактировать лист", "Удалить лист", "Отмена" };
-        if (sheetsList.get(position).getStatus().equals(getString(R.string.fixed))) {
+        Sheet sheet = sheetsList.get(position);
+        long timeLeft = editTimeLeft(sheet);
+        final boolean sentEditable = sheet.getStatus().equals(getString(R.string.fixed)) && timeLeft > 0
+                && !sheet.getOpr().get(0).getDefect().get(0).getDefect().contains("F0 ");
+        if (sentEditable) {
+            options = new CharSequence[]{getString(R.string.add_opr), getString(R.string.edit_list), getString(R.string.delete_list), getString(R.string.cancel)};
+        } else if (sheet.getStatus().equals(getString(R.string.fixed))) {
             options = new CharSequence[]{getString(R.string.delete_list), getString(R.string.cancel)};
         } else if(sheetsList.get(position).getOpr().get(0).getDefect().get(0).getDefect().contains("F0 ")){
             options = new CharSequence[]{getString(R.string.create_csv), getString(R.string.delete_list), getString(R.string.cancel)};
@@ -360,8 +373,19 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
             options = new CharSequence[]{getString(R.string.create_csv), getString(R.string.add_opr), getString(R.string.edit_list), getString(R.string.delete_list), getString(R.string.cancel)};
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(WatchCreatedLists.this);
-        builder.setTitle(R.string.choose_option);
+        if (sentEditable) {
+            long minutesLeft = timeLeft / 60000;
+            builder.setTitle(getString(R.string.edit_time_left, minutesLeft / 60, minutesLeft % 60));
+        } else {
+            builder.setTitle(R.string.choose_option);
+        }
         builder.setItems(options, (dialog, item) -> {
+            if (sentEditable && (options[item].equals(getString(R.string.add_opr)) || options[item].equals(getString(R.string.edit_list)))) {
+                // Back to "not uploaded" so the list can be resent; sentAt > 0 marks the resend with E in the CSV.
+                objectsDao.reopen(sheet.getId());
+                sheet.setStatus(getString(R.string.not_uploaded));
+                listAdapter.notifyItemChanged(position);
+            }
             if (options[item].equals(getString(R.string.create_csv))) {
                // ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                // Network[] networks = connectivityManager.getAllNetworks();
@@ -391,7 +415,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                     case R.raw.line0_4:
                     case R.raw.line6_10:
                     case R.raw.line35:
-                        if (!sheetsList.get(position).getStatus().equals(Default.CONFIRM_MODIFICATOR)) {
+                        if (!sheetsList.get(position).getModificator().equals(Default.CONFIRM_MODIFICATOR)) {
                             LineIntervalDialogFragment lineIntervalDialogFragment = LineIntervalDialogFragment.newInstance(position);
                             lineIntervalDialogFragment.show(getSupportFragmentManager(), "interval_dialog");
                         } else {
@@ -636,7 +660,9 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                 files = new ArrayList<>();
                 for (int i = 0; i < oporas.size(); i++) {
                     List<Defect> defects = oporas.get(i).getDefect();
-                    String thermalSuffix = ";" + (record.isThermalDoneOk() ? "X" : "") + ";" + (record.isDefectsFound() ? "X" : "");
+                    String thermalSuffix = ";" + (record.isThermalDoneOk() ? "X" : "") + ";" + (record.isDefectsFound() ? "X" : "")
+                            // E = resend of an already uploaded list: backend updates the existing list instead of creating a new one
+                            + ";" + (record.getSentAt() > 0 ? Default.RESEND_MARKER : "");
                     for (int j = 0; j < defects.size(); j++) {
                         List<String> images = defects.get(j).getPhoto();
                         //формируем строку для записи в csv
@@ -745,7 +771,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
     }*/
 
     private void changeStatus(int position) {
-        objectsDao.updateStatus(sheetsList.get(position).getId());
+        objectsDao.updateStatus(sheetsList.get(position).getId(), System.currentTimeMillis());
         sheetsList.clear();
         readSaved();
         runOnUiThread(() -> {

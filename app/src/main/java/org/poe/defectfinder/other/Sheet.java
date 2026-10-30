@@ -43,6 +43,7 @@ public class Sheet implements Serializable {
     private boolean highVoltage;
     private boolean thermalDoneOk;
     private boolean defectsFound;
+    private long sentAt;
 
     @Override
     public boolean equals(Object o) {
@@ -183,5 +184,13 @@ public class Sheet implements Serializable {
 
     public void setDefectsFound(boolean defectsFound) {
         this.defectsFound = defectsFound;
+    }
+
+    public long getSentAt() {
+        return sentAt;
+    }
+
+    public void setSentAt(long sentAt) {
+        this.sentAt = sentAt;
     }
 }

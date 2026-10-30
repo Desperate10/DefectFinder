@@ -22,6 +22,8 @@ public class Objects {
     private boolean thermalNotDone;
     private boolean defectsFound;
     private boolean defectsAbsent;
+    // Time of the first successful upload in millis, 0 if never sent.
+    private long sentAt;
 
     public String getDate() {
         return date;
@@ -159,5 +161,13 @@ public class Objects {
 
     public void setDefectsAbsent(boolean defectsAbsent) {
         this.defectsAbsent = defectsAbsent;
+    }
+
+    public long getSentAt() {
+        return sentAt;
+    }
+
+    public void setSentAt(long sentAt) {
+        this.sentAt = sentAt;
     }
 }

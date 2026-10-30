@@ -18,7 +18,8 @@ public interface ObjectsDao {
     @Query("SELECT * FROM objects where modificator LIKE \"confirm\"")
     List<Objects> getAllConfirm();
 
-    @Query("SELECT * FROM objects WHERE name = :name and modificator =:modificator and highVoltage = :highVoltage and status = \"Не вигружено\"")
+    // sentAt = 0 keeps new defects from being merged into a list reopened for editing after upload.
+    @Query("SELECT * FROM objects WHERE name = :name and modificator =:modificator and highVoltage = :highVoltage and status = \"Не вигружено\" and sentAt = 0")
     Objects getObject(String name, String modificator, boolean highVoltage);
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -27,8 +28,12 @@ public interface ObjectsDao {
     @Query("UPDATE objects SET date =:date WHERE id =:id")
     void updateDate(int id, String date);
 
-    @Query("UPDATE objects SET status = \"Вигружено\" WHERE id =:id")
-    void updateStatus(int id);
+    // sentAt is set only on the first upload, so the edit window is not extended by resending.
+    @Query("UPDATE objects SET status = \"Вигружено\", sentAt = CASE WHEN sentAt = 0 THEN :now ELSE sentAt END WHERE id =:id")
+    void updateStatus(int id, long now);
+
+    @Query("UPDATE objects SET status = \"Не вигружено\" WHERE id =:id")
+    void reopen(int id);
 
     @Query("UPDATE objects SET modificator=:modificator WHERE id=:id")
     void updateModificator(int id, String modificator);

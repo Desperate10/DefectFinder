@@ -82,7 +82,9 @@
     <string name="delete_list">Видалити листок</string>
     <string name="create_csv">Створити csv-файл</string>
     <string name="edit_list">Редагувати листок</string>
-    <string name="choose_option">Оберіть дію:</string>    <string name="cant_add_opr">Неможливо додати опору до ТП або КЛ</string>
+    <string name="choose_option">Оберіть дію:</string>
+    <string name="edit_time_left">Редагування доступне ще %1$d год %2$d хв</string>
+    <string name="cant_add_opr">Неможливо додати опору до ТП або КЛ</string>
     <string name="list_succ_deleted">Листок успішно видалено!</string>
     <string name="r_sure_question">Ви впевнені?</string>
     <string name="auth_error">Помилка аутентифікації</string>
