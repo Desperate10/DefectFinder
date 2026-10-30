@@ -34,6 +34,9 @@ public interface DefectsDao {
     @Query("UPDATE defects SET photos = :photos WHERE parentObjectId = :id AND oprName = :opr AND defectName =:defect")
     void updatePhotos(ArrayList<String> photos, int id, String opr, String defect);
 
+    @Query("UPDATE defects SET thermalDoneOk = :done, thermalNotDone = :notDone WHERE parentObjectId = :id AND oprName = :opr AND defectName = :defect")
+    void updateThermalState(boolean done, boolean notDone, int id, String opr, String defect);
+
     @Query("DELETE FROM defects WHERE parentObjectId = :id")
     void deleteDefectsByObject(int id);
 

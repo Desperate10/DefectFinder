@@ -4,7 +4,7 @@ public class ObjectsResponse {
 
     String tplnr;
     String pltxt;
-    String invnr;
+    boolean highVoltage;
 
     ObjectsResponse() {}
 
@@ -13,7 +13,7 @@ public class ObjectsResponse {
         return "ObjectResponse{" +
                 "tplnr='" + tplnr + '\'' +
                 ", pltxt='" + pltxt + '\'' +
-                ", invnr='" + invnr + '\'' +
+                ", highVoltage=" + highVoltage +
                 '}';
     }
 
@@ -33,11 +33,19 @@ public class ObjectsResponse {
         this.pltxt = pltxt;
     }
 
-    public String getInvnr() {
-        return invnr;
+    public boolean isHighVoltage() {
+        return highVoltage;
     }
 
-    public void setInvnr(String invnr) {
-        this.invnr = invnr;
+    public void setHighVoltage(boolean highVoltage) {
+        this.highVoltage = highVoltage;
+    }
+
+    /** Last 4 characters of tplnr ("PO-F-04-P0052" -> "0052").
+     *  Used as a short disambiguator in dropdowns instead of inventory number. */
+    public String getTplnrSuffix() {
+        if (tplnr == null) return "";
+        int len = tplnr.length();
+        return len <= 4 ? tplnr : tplnr.substring(len - 4);
     }
 }

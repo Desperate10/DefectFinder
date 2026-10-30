@@ -16,6 +16,7 @@ public class Sheet implements Serializable {
                 ", tplnr='" + tplnr + '\'' +
                 ", obhod='" + obhod + '\'' +
                 ", type=" + type +
+                ", highVoltage=" + highVoltage +
                 ", opr=" + opr +
                 ", time='" + time + '\'' +
                 ", status='" + status + '\'' +
@@ -39,6 +40,9 @@ public class Sheet implements Serializable {
     private List<Opora> opr;
     private String time;
     private String status;
+    private boolean highVoltage;
+    private boolean thermalDoneOk;
+    private boolean defectsFound;
 
     @Override
     public boolean equals(Object o) {
@@ -46,6 +50,7 @@ public class Sheet implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Sheet sheet = (Sheet) o;
         return type == sheet.type &&
+                highVoltage == sheet.highVoltage &&
                 Objects.equals(modificator, sheet.modificator) &&
                 Objects.equals(tabel, sheet.tabel) &&
                 Objects.equals(linename, sheet.linename) &&
@@ -58,7 +63,7 @@ public class Sheet implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(modificator, tabel, linename, tplnr, obhod, type, opr, time, status);
+        return Objects.hash(modificator, tabel, linename, tplnr, obhod, type, highVoltage, opr, time, status);
     }
 
     public Sheet() {}
@@ -154,5 +159,29 @@ public class Sheet implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public boolean isHighVoltage() {
+        return highVoltage;
+    }
+
+    public void setHighVoltage(boolean highVoltage) {
+        this.highVoltage = highVoltage;
+    }
+
+    public boolean isThermalDoneOk() {
+        return thermalDoneOk;
+    }
+
+    public void setThermalDoneOk(boolean thermalDoneOk) {
+        this.thermalDoneOk = thermalDoneOk;
+    }
+
+    public boolean isDefectsFound() {
+        return defectsFound;
+    }
+
+    public void setDefectsFound(boolean defectsFound) {
+        this.defectsFound = defectsFound;
     }
 }

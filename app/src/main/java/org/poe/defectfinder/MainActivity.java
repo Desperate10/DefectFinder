@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -58,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+
+        binding.versionLabel.setText("v" + BuildConfig.VERSION_NAME);
 
         api = ClientApi.getInstance(this).getApi();
 
@@ -88,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tabel = bundle.getString("tabel");
             binding.tabel.setText(tabel);
         }
-
+        backPressHandle();
 
     }
 
@@ -180,6 +183,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (filial.equals("00")) {
             chooseYourFilialDialog();
         }
+        updateFilialButton();
+    }
+
+    private void updateFilialButton() {
+        String[] filials = getResources().getStringArray(R.array.filials);
+        String displayName = filial;
+        for (String f : filials) {
+            if (f.startsWith(filial)) {
+                displayName = f.trim();
+                break;
+            }
+        }
+        binding.changeFilial.setText(getString(R.string.change_filial) + ": " + displayName);
     }
 
     private void chooseYourFilialDialog() {
@@ -210,6 +226,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             editor.putString("filial", filial);
             editor.apply();
             alertDialog.cancel();
+            updateFilialButton();
         });
     }
 
@@ -256,6 +273,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         finish();
                     }
                     break;
+                case R.id.change_filial:
+                    chooseYourFilialDialog();
+                    break;
             }
     }
 
@@ -299,8 +319,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return valid;
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
+
+    public void backPressHandle() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish(); // same behavior as before
+            }
+        });
     }
 }

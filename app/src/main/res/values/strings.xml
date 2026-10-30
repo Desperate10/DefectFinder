@@ -82,8 +82,7 @@
     <string name="delete_list">Видалити листок</string>
     <string name="create_csv">Створити csv-файл</string>
     <string name="edit_list">Редагувати листок</string>
-    <string name="choose_option">Оберіть дію:</string>
-    <string name="cant_add_opr">Неможливо додати опору до ТП або КЛ</string>
+    <string name="choose_option">Оберіть дію:</string>    <string name="cant_add_opr">Неможливо додати опору до ТП або КЛ</string>
     <string name="list_succ_deleted">Листок успішно видалено!</string>
     <string name="r_sure_question">Ви впевнені?</string>
     <string name="auth_error">Помилка аутентифікації</string>
@@ -93,6 +92,17 @@
     <string name="end_of_lists">Кінець списку</string>
     <string name="not_choose_defect">Ви не вибрали дефект</string>
     <string name="select_line">Виберіть об\'єкт</string>
+    <string name="change_filial">Змінити філію</string>
+    <string name="thermal_done_ok">Проведено тепловізійне обстеження</string>
+    <string name="thermal_not_done">Не проведено тепловізійне обстеження</string>
+    <string name="defects_found">Виявлено дефекти</string>
+    <string name="defects_absent">Дефекти відсутні</string>
+    <string name="h31_required">Спочатку додайте дефект Н31 (Перегрівання контактів)</string>
+    <string name="h31_required_delete">Не можна видалити Н31, поки виявлено дефекти тепловізором</string>
+    <string name="h31_remove_title">Видалити Н31?</string>
+    <string name="h31_remove_message">Дефект Н31 (Перегрівання контактів) буде видалено з листа. Продовжити?</string>
+    <string name="h31_photo_required">Для дефекту Н31 потрібно додати фото</string>
+    <string name="h31_note_required">Для дефекту Н31 потрібно додати примітку</string>
 
     <string-array name="plan_array">
         <item>Плановий</item>
@@ -134,7 +144,9 @@
     <string-array name="line_or_tp_array">
         <item>Лінія 0,4кВ</item>
         <item>Лінія 6-10кВ</item>
+        <item>Лінія 35-154кВ</item>
         <item>ТП</item>
+        <item>ПС</item>
         <item>КЛ</item>
     </string-array>
 

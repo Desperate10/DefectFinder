@@ -17,6 +17,11 @@ public class Objects {
     private String tplnr;
     private String status;
     private String date;
+    private boolean highVoltage;
+    private boolean thermalDoneOk;
+    private boolean thermalNotDone;
+    private boolean defectsFound;
+    private boolean defectsAbsent;
 
     public String getDate() {
         return date;
@@ -28,7 +33,7 @@ public class Objects {
 
 
 
-    public Objects( String modificator, String tabel, String obhod, String name, int type, String tplnr, String status) {
+    public Objects( String modificator, String tabel, String obhod, String name, int type, String tplnr, String status, boolean highVoltage) {
         this.modificator = modificator;
         this.tabel = tabel;
         this.obhod = obhod;
@@ -36,10 +41,11 @@ public class Objects {
         this.type = type;
         this.tplnr = tplnr;
         this.status = status;
+        this.highVoltage = highVoltage;
     }
 
     @Ignore
-    public Objects(int id, String modificator, String tabel, String obhod, String name, int type, String tplnr, String status) {
+    public Objects(int id, String modificator, String tabel, String obhod, String name, int type, String tplnr, String status, boolean highVoltage) {
         this.id = id;
         this.modificator = modificator;
         this.tabel = tabel;
@@ -48,6 +54,7 @@ public class Objects {
         this.type = type;
         this.tplnr = tplnr;
         this.status = status;
+        this.highVoltage = highVoltage;
     }
 
     public int getId() {
@@ -114,7 +121,43 @@ public class Objects {
         this.status = status;
     }
 
+    public boolean isHighVoltage() {
+        return highVoltage;
+    }
 
+    public void setHighVoltage(boolean highVoltage) {
+        this.highVoltage = highVoltage;
+    }
 
+    public boolean isThermalDoneOk() {
+        return thermalDoneOk;
+    }
 
+    public void setThermalDoneOk(boolean thermalDoneOk) {
+        this.thermalDoneOk = thermalDoneOk;
+    }
+
+    public boolean isThermalNotDone() {
+        return thermalNotDone;
+    }
+
+    public void setThermalNotDone(boolean thermalNotDone) {
+        this.thermalNotDone = thermalNotDone;
+    }
+
+    public boolean isDefectsFound() {
+        return defectsFound;
+    }
+
+    public void setDefectsFound(boolean defectsFound) {
+        this.defectsFound = defectsFound;
+    }
+
+    public boolean isDefectsAbsent() {
+        return defectsAbsent;
+    }
+
+    public void setDefectsAbsent(boolean defectsAbsent) {
+        this.defectsAbsent = defectsAbsent;
+    }
 }

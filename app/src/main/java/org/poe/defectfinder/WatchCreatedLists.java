@@ -213,7 +213,12 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                 }
                 oporas.add(new Opora(value.get(0).getOprName(), value.get(0).getOprOrSpan(), defects1));
             }
-            sheetsList.add(new Sheet(objects.get(i).getId(), objects.get(i).getModificator(), objects.get(i).getTabel(), objects.get(i).getName(), objects.get(i).getTplnr(), objects.get(i).getObhod(), objects.get(i).getType(), oporas, objects.get(i).getDate(), objects.get(i).getStatus()));
+            Objects obj = objects.get(i);
+            Sheet sheet = new Sheet(obj.getId(), obj.getModificator(), obj.getTabel(), obj.getName(), obj.getTplnr(), obj.getObhod(), obj.getType(), oporas, obj.getDate(), obj.getStatus());
+            sheet.setHighVoltage(obj.isHighVoltage());
+            sheet.setThermalDoneOk(obj.isThermalDoneOk());
+            sheet.setDefectsFound(obj.isDefectsFound());
+            sheetsList.add(sheet);
         }
 
     }
@@ -385,6 +390,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                 switch (type) {
                     case R.raw.line0_4:
                     case R.raw.line6_10:
+                    case R.raw.line35:
                         if (!sheetsList.get(position).getStatus().equals(Default.CONFIRM_MODIFICATOR)) {
                             LineIntervalDialogFragment lineIntervalDialogFragment = LineIntervalDialogFragment.newInstance(position);
                             lineIntervalDialogFragment.show(getSupportFragmentManager(), "interval_dialog");
@@ -584,6 +590,11 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
         }.execute();
     }
 
+    // Визначаємо тип об'єкта один раз
+    private String getObjectTypeMarker(boolean highVoltage) {
+        return highVoltage ? ";2" : ";1";
+    }
+
     private void loadImages(int position, String startOpr, String endOpr) {
         Toast.makeText(this, "Загрузка об'єкта " + sheetsList.get(position).getLinename()+ " почалась", Toast.LENGTH_LONG).show();
         //NOtification
@@ -607,6 +618,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
             public void run() {*/
                 error = false;
                 Sheet record = sheetsList.get(position);
+                String typeMarker = getObjectTypeMarker(record.isHighVoltage());
                 List<Opora> oporas = sheetsList.get(position).getOpr();
                 StringBuilder stringBuilder = new StringBuilder();
              //   BaseContext baseCxt = null;
@@ -624,6 +636,7 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                 files = new ArrayList<>();
                 for (int i = 0; i < oporas.size(); i++) {
                     List<Defect> defects = oporas.get(i).getDefect();
+                    String thermalSuffix = ";" + (record.isThermalDoneOk() ? "X" : "") + ";" + (record.isDefectsFound() ? "X" : "");
                     for (int j = 0; j < defects.size(); j++) {
                         List<String> images = defects.get(j).getPhoto();
                         //формируем строку для записи в csv
@@ -655,16 +668,16 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                             if (images.size() > 0) {
                                 if (!startOpr.isEmpty()) {
                                     if (!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
-                                        stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[];;"+startOpr+";"+endOpr+"\n");
+                                        stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[];;"+startOpr+";"+endOpr+typeMarker+thermalSuffix+"\n");
                                     } else {
-                                        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];;"+startOpr+";"+endOpr+"\n");
+                                        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];;"+startOpr+";"+endOpr+typeMarker+thermalSuffix+"\n");
                                     }
                                 } else {
                                     if (!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
-                                        stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[];X;;\n");
+                                        stringBuilder.append(record.getObhod() + ";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[" + url + "];" + record.getTime() + ";[];X;;"+typeMarker+thermalSuffix+"\n");
                                     } else {
                                         //     if(url.equals("fake")) {
-                                        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];X;;" + "\n");
+                                        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[" + url + "];X;;"+typeMarker+thermalSuffix+"\n");
                                         //    } else {
                                         //        stringBuilder.append(";" + record.getTabel() + ";" + record.getTplnr() + ";" + defects.get(j).getDefect().split(" ")[0] + ";" + oporas.get(i).getOpr() + ";" + defects.get(j).getNote() + ";[];" + record.getTime() + ";[fake];" + "\n");
                                         //     }
@@ -679,15 +692,15 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
                         if (images.size() == 0) {
                             if (!startOpr.isEmpty()) {
                                 if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
-                                    stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[];;"+startOpr+";"+endOpr+"\n");
+                                    stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[];;"+startOpr+";"+endOpr+typeMarker+thermalSuffix+"\n");
                                 } else {
-                                    stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake];;"+startOpr+";"+endOpr+"\n");
+                                    stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake];;"+startOpr+";"+endOpr+typeMarker+thermalSuffix+"\n");
                                 }
                             } else {
                                 if(!modificator.equals(Default.CONFIRM_MODIFICATOR)) {
-                                    stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[];X;;\n");
+                                    stringBuilder.append(record.getObhod()+";"+record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[];X;;"+typeMarker+thermalSuffix+"\n");
                                 } else {
-                                    stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake];X;;\n");
+                                    stringBuilder.append(";" +record.getTabel()+";"+record.getTplnr()+";"+defects.get(j).getDefect().split(" ")[0]+";"+oporas.get(i).getOpr()+";"+defects.get(j).getNote()+";[];"+record.getTime()+";[fake];X;;"+typeMarker+thermalSuffix+"\n");
                                 }
                             }
                         }
@@ -775,9 +788,9 @@ public class WatchCreatedLists extends AppCompatActivity implements UploadReques
     public void onBackPressed() {
         //super.onBackPressed();
         Intent intent;
-        if(tabel == null) {
+        if (tabel == null) {
             intent = new Intent(WatchCreatedLists.this, MainActivity.class);
-        } else if(modificator.equals(Default.CONFIRM_MODIFICATOR) && !tabel.isEmpty()){
+        } else if (modificator.equals(Default.CONFIRM_MODIFICATOR) && !tabel.isEmpty()) {
             intent = new Intent(WatchCreatedLists.this, WatchDefects.class);
             intent.putExtra("tabel", tabel);
             //intent.putExtra("mod", modificator);

@@ -58,9 +58,17 @@ public interface MyApi {
     Call<List<ObjectsResponse>> getLineObjects(@Query("filial") String filial, @Query("pltxt") String pltxt,
                                             @Header("Authorization") String authorization, @Header("Cache-Control") String cacheControl);
 
+    @GET("get35Lines")
+    Call<List<ObjectsResponse>> getHighLineObjects(@Query("filial") String filial,
+                                               @Header("Authorization") String authorization, @Header("Cache-Control") String cacheControl);
+
     @GET("getTps")
     Call<List<ObjectsResponse>> getTpObjects(@Query("filial") String filial,
                                                @Header("Authorization") String authorization, @Header("Cache-Control") String cacheControl);
+
+    @GET("getPss")
+    Call<List<ObjectsResponse>> getPsObjects(@Query("filial") String filial,
+                                             @Header("Authorization") String authorization, @Header("Cache-Control") String cacheControl);
 
     @GET("getKls")
     Call<List<ObjectsResponse>> getKlObjects(@Query("filial") String filial,

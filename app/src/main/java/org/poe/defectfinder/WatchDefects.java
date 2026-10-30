@@ -237,24 +237,25 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
         String defectTxt = sheets.get(position).getOpr().get(0).getDefect().get(0).getDefect();
         int oprOrSpan = sheets.get(position).getOpr().get(0).getOprOrSpan();
         int type = sheets.get(position).getType();
+        boolean highVoltage = sheets.get(position).isHighVoltage();
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Добавить к исправлению в существующий лист")) {
-                Objects object = objectsDao.getObject(linename, Default.CONFIRM_MODIFICATOR);
+                Objects object = objectsDao.getObject(linename, Default.CONFIRM_MODIFICATOR, highVoltage);
                 int objId;
                 try {
                     objId = object.getId();
                     defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
                 } catch (NullPointerException e){
-                    objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded)));
+                    objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded), highVoltage));
                     defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
                 }
             } else if (options[item].equals("Добавить к исправлению в отдельный лист")) {
                 int objId;
-                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded)));
+                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded), highVoltage));
                 defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
             } else if (options[item].equals(getString(R.string.add_photo))) {
                 int objId;
-                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded)));
+                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded), highVoltage));
                 defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
                 Intent intent = new Intent(WatchDefects.this, EditDefect.class);
                 intent.putExtra("objId", objId);
@@ -265,7 +266,7 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
             } else if (options[item].equals(getString(R.string.create_csv))) {
                 int objId;
-                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded)));
+                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, getString(R.string.not_uploaded), highVoltage));
                 defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
                 Intent intent = new Intent(WatchDefects.this,WatchCreatedLists.class);
                 intent.putExtra("tabel", tabel);
@@ -413,8 +414,9 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
             String defectTxt = selectedItems.get(i).getOpr().get(0).getDefect().get(0).getDefect();
             int oprOrSpan = selectedItems.get(i).getOpr().get(0).getOprOrSpan();
             int type = selectedItems.get(i).getType();
+            boolean highVoltage = selectedItems.get(i).isHighVoltage();
 
-            Objects object = objectsDao.getObject(linename, Default.CONFIRM_MODIFICATOR);
+            Objects object = objectsDao.getObject(linename, Default.CONFIRM_MODIFICATOR, highVoltage);
             int objId;
             try {
                 objId = object.getId();
@@ -422,7 +424,7 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                // Defects defect = defectsDao.getCurtainDefect(objId, opr, defectTxt);
                 defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
             } catch (NullPointerException e){
-                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, "Не вигружено"));
+                objId = (int) objectsDao.insert(new Objects(Default.CONFIRM_MODIFICATOR, tabel, "", linename, type, tplnr, "Не вигружено", highVoltage));
                 objectsDao.updateDate(objId, strDate);
                 defectsDao.insert(new Defects(objId, opr, oprOrSpan, defectTxt, new ArrayList<>(), "", Default.CONFIRM_MODIFICATOR));
             }
@@ -704,9 +706,12 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                     type = R.raw.tp;
                 } else if (result.getPltxt().contains("КЛ") || result.getPltxt().contains("КВ")) {
                     type = R.raw.kl;
+                } else if (result.getPltxt().contains("35")) {
+                    type = R.raw.line35;
                 } else {
                     type = R.raw.line6_10;
                 }
+                boolean highVoltage = Default.isHighVoltage(type);
 
                 String defectTxt = null;
                 try {
@@ -721,7 +726,7 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                 oporas.add(new Opora(result.getCodeplace(), oprOrSpan, defects));
 
                 String status = getString(R.string.not_fixed);
-                Objects object = objectsDao.getObject(result.getPltxt(), Default.CONFIRM_MODIFICATOR);
+                Objects object = objectsDao.getObject(result.getPltxt(), Default.CONFIRM_MODIFICATOR, highVoltage);
                 int objId;
                 try {
                     objId = object.getId();
@@ -733,8 +738,10 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                     }
                 } catch (NullPointerException e) {
                 }
-                sheets.add(new Sheet(Default.CONFIRM_MODIFICATOR, tabel, result.getPltxt(), result.getTplnr(), "", type,
-                        oporas, strDate, status));
+                Sheet sheet = new Sheet(Default.CONFIRM_MODIFICATOR, tabel, result.getPltxt(), result.getTplnr(), "", type,
+                        oporas, strDate, status);
+                sheet.setHighVoltage(highVoltage);
+                sheets.add(sheet);
             }
         }catch (NullPointerException ex) {Toast.makeText(WatchDefects.this, "Пусто", Toast.LENGTH_SHORT).show();}
         progressBar.setVisibility(View.GONE);
@@ -763,9 +770,12 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                     type = R.raw.tp;
                 } else if (result.getPltxt().contains("КЛ") || result.getPltxt().contains("КВ")){
                     type = R.raw.kl;
+                } else if (result.getPltxt().contains("35")) {
+                    type = R.raw.line35;
                 } else {
                     type = R.raw.line6_10;
                 }
+                boolean highVoltage = Default.isHighVoltage(type);
 
                 String defectTxt = null;
                 try {
@@ -779,8 +789,10 @@ public class WatchDefects extends AppCompatActivity implements View.OnClickListe
                 } else oprOrSpan = 0;
                 oporas.add(new Opora(result.getCodeplace(), oprOrSpan, defects));
                 String status = getString(R.string.not_fixed);
-                sheets.add(new Sheet(Default.CONFIRM_MODIFICATOR, tabel, results.get(i).getPltxt(), results.get(i).getTplnr(), "", R.raw.line6_10,
-                        oporas, strDate, status));
+                Sheet sheet = new Sheet(Default.CONFIRM_MODIFICATOR, tabel, results.get(i).getPltxt(), results.get(i).getTplnr(), "", type,
+                        oporas, strDate, status);
+                sheet.setHighVoltage(highVoltage);
+                sheets.add(sheet);
 
             }
         }catch (NullPointerException ex) {

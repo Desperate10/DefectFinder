@@ -18,8 +18,8 @@ public interface ObjectsDao {
     @Query("SELECT * FROM objects where modificator LIKE \"confirm\"")
     List<Objects> getAllConfirm();
 
-    @Query("SELECT * FROM objects WHERE name = :name and modificator =:modificator and status = \"Не вигружено\"")
-    Objects getObject(String name, String modificator);
+    @Query("SELECT * FROM objects WHERE name = :name and modificator =:modificator and highVoltage = :highVoltage and status = \"Не вигружено\"")
+    Objects getObject(String name, String modificator, boolean highVoltage);
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     long insert(Objects object);
@@ -32,6 +32,15 @@ public interface ObjectsDao {
 
     @Query("UPDATE objects SET modificator=:modificator WHERE id=:id")
     void updateModificator(int id, String modificator);
+
+    @Query("UPDATE objects SET highVoltage=:highVoltage WHERE id=:id")
+    void updateHighVoltage(int id, boolean highVoltage);
+
+    @Query("SELECT * FROM objects WHERE id = :id")
+    Objects getObjectById(int id);
+
+    @Query("UPDATE objects SET thermalDoneOk=:thermalDone, thermalNotDone=:thermalNotDone, defectsFound=:defectsFound, defectsAbsent=:defectsAbsent WHERE id=:id")
+    void updateThermalState(int id, boolean thermalDone, boolean thermalNotDone, boolean defectsFound, boolean defectsAbsent);
 
     @Query("DELETE FROM objects WHERE id = :id")
     void delete(int id);

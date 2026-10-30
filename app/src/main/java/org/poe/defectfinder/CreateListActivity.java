@@ -57,8 +57,10 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     private static final long LOCATION_REFRESH_TIME = 5000;
     private static final float LOCATION_REFRESH_DISTANCE = 50;
     private static final String TP_OBJECT = "/tp.txt";
+    private static final String PS_OBJECT = "/ps.txt";
     private static final String LINE0_4_OBJECT = "-0";
     private static final String LINE6_10_OBJECT = "/lines6_10.txt";
+    private static final String LINE35_OBJECT = "/lines35.txt";
     private static final String KL_OBJECT = "/kl.txt";
 
     ActivityCreateListBinding binding;
@@ -143,13 +145,24 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                 objectType = LINE6_10_OBJECT;
                 break;
             case 2:
+                resource = R.raw.line35;
+                objectType = LINE35_OBJECT;
+                break;
+            case 3:
                 binding.listSpinner.setEnabled(true);
                 binding.inputOpr.setVisibility(View.INVISIBLE);
                 binding.oprOrSpan.setVisibility(View.INVISIBLE);
                 resource = R.raw.tp;
                 objectType = TP_OBJECT;
                 break;
-            case 3:
+            case 4:
+                binding.listSpinner.setEnabled(true);
+                binding.inputOpr.setVisibility(View.INVISIBLE);
+                binding.oprOrSpan.setVisibility(View.INVISIBLE);
+                resource = R.raw.ps;
+                objectType = PS_OBJECT;
+                break;
+            case 5:
                 binding.listSpinner.setEnabled(true);
                 binding.inputOpr.setVisibility(View.INVISIBLE);
                 binding.oprOrSpan.setVisibility(View.INVISIBLE);
@@ -175,7 +188,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                         List<ObjectsResponse> results = response.body();
                         for (int i = 0; i<results.size(); i++) {
                             if (objectType.equals(LINE0_4_OBJECT)) {
-                                objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                                objects.add(results.get(i).getTplnrSuffix() + " " + results.get(i).getPltxt());
                                 lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
                             }
                         }
@@ -194,7 +207,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                         List<ObjectsResponse> results = response.body();
                         for (int i = 0; i<results.size(); i++) {
                             if (objectType.equals(TP_OBJECT)) {
-                                objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                                objects.add(results.get(i).getTplnrSuffix() + " " + results.get(i).getPltxt());
                                 lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
                             }
                         }
@@ -206,6 +219,26 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
                 });
             //    break;
+                // case PS_OBJECT:
+                api.getPsObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
+                        List<ObjectsResponse> results = response.body();
+                        if (results != null) {
+                            for (int i = 0; i < results.size(); i++) {
+                                if (objectType.equals(PS_OBJECT)) {
+                                    objects.add(results.get(i).getTplnrSuffix() + " " + results.get(i).getPltxt());
+                                    lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                                }
+                            }
+                        }
+                        setLineAdapter(objects);
+                        //binding.llProgressBar.getRoot().setVisibility(View.GONE);
+                    }
+                    @Override
+                    public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
+                });
+                //    break;
             //case KL_OBJECT:
                 api.getKlObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
                     @Override
@@ -213,7 +246,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                         List<ObjectsResponse> results = response.body();
                         for (int i = 0; i<results.size(); i++) {
                             if (objectType.equals(KL_OBJECT)) {
-                                objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                                objects.add(results.get(i).getTplnrSuffix() + " " + results.get(i).getPltxt());
                                 lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
                             }
                         }
@@ -230,10 +263,32 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
             @Override
             public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
                 List<ObjectsResponse> results = response.body();
-                for (int i = 0; i<results.size(); i++) {
+                for (int i = 0; i < results.size(); i++) {
                     if (objectType.equals(LINE6_10_OBJECT)) {
-                        objects.add(results.get(i).getInvnr() + " " + results.get(i).getPltxt());
+                        objects.add(results.get(i).getTplnrSuffix() + " " + results.get(i).getPltxt());
                         lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                    }
+                }
+                setLineAdapter(objects);
+                binding.llProgressBar.getRoot().setVisibility(View.GONE);
+            }
+            @Override
+            public void onFailure(Call<List<ObjectsResponse>> call, Throwable t) {}
+        });
+        //    break;
+        //}
+        //case LINE35_object
+
+        api.getHighLineObjects(filial.substring(0,2), "Bearer "+token, forceRefresh? "no-cache" : null).enqueue(new Callback<List<ObjectsResponse>>() {
+            @Override
+            public void onResponse(Call<List<ObjectsResponse>> call, Response<List<ObjectsResponse>> response) {
+                List<ObjectsResponse> results = response.body();
+                if (results != null) {
+                    for (int i = 0; i<results.size(); i++) {
+                        if (objectType.equals(LINE35_OBJECT)) {
+                            objects.add(results.get(i).getTplnrSuffix() + " " + results.get(i).getPltxt());
+                            lineToTplnr.put(results.get(i).getPltxt(), results.get(i).getTplnr());
+                        }
                     }
                 }
                 setLineAdapter(objects);
@@ -368,7 +423,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.list_spinner:
-                ObjectListDialogFragment fragment = ObjectListDialogFragment.newInstance(objects, "Виберіть об'єкт:");
+                ObjectListDialogFragment fragment = ObjectListDialogFragment.newInstance(objects, "Виберіть об'єкт:", 0);
                 fragment.show(getSupportFragmentManager(), "DialogFragment");
                 break;
             case R.id.location_btn:
@@ -400,18 +455,19 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
                     if ( modificator.equals(Default.CONFIRM_MODIFICATOR)) plan = "";
                     else plan = binding.planSpinner.getSelectedItem().toString();
                     String tplnr = lineToTplnr.get(linename);//getTplnr(objectType, linename);
+                    boolean highVoltage = Default.isHighVoltage(resource);
                     new BackgroundTask(CreateListActivity.this) {
 
                         @Override
                         public long doInBackground() {
                             ObjectsDatabase db = App.getInstance().getDatabase();
                             ObjectsDao objectsDao = db.objectsDao();
-                            Objects object = objectsDao.getObject(linename, modificator);
+                            Objects object = objectsDao.getObject(linename, modificator, highVoltage);
                             long objId;
                             try {
                                 objId = object.getId();
                             } catch (NullPointerException e){
-                                objId = objectsDao.insert(new Objects(modificator, tabel, plan, linename, resource, tplnr, getString(R.string.not_uploaded)));
+                                objId = objectsDao.insert(new Objects(modificator, tabel, plan, linename, resource, tplnr, getString(R.string.not_uploaded), highVoltage));
                             }
                             return objId;
                         }
@@ -573,7 +629,7 @@ public class CreateListActivity extends AppCompatActivity implements AdapterView
     }
 
     @Override
-    public void sendInput(String input) {
+    public void sendInput(String input, int requestCode) {
         binding.listSpinner.setText(input);
     }
 }

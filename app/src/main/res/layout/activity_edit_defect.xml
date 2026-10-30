@@ -34,7 +34,7 @@
                     android:id="@+id/activity_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="36dp"
                     android:text="@string/defect_editor"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
@@ -83,6 +83,51 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/defect_spinner" />
+
+                <LinearLayout
+                    android:id="@+id/thermal_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp">
+
+                    <CheckBox
+                        android:id="@+id/cb_thermal_done"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/thermal_done_ok"
+                        android:textStyle="bold" />
+
+                    <CheckBox
+                        android:id="@+id/cb_thermal_not_done"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/thermal_not_done"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/defects_box"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="24dp"
+                        android:visibility="gone">
+
+                        <CheckBox
+                            android:id="@+id/cb_defects_found"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/defects_found" />
+
+                        <CheckBox
+                            android:id="@+id/cb_defects_absent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/defects_absent" />
+                    </LinearLayout>
+                </LinearLayout>
 
 
                 <GridView

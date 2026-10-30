@@ -189,7 +189,14 @@ public class AddOprToLine extends AppCompatActivity implements AdapterView.OnIte
                 if (validate()) {
                     ObjectsDatabase database = App.getInstance().getDatabase();
                     ObjectsDao objectsDao = database.objectsDao();
-                    objectsDao.updateModificator(objId, "edit");
+                    // Only flip ADD/EDIT rows. Flipping CONFIRM rows here was the bug
+                    // that emptied the obhod ("Плановий") field at CSV export time:
+                    // CONFIRM rows are inserted with obhod="" intentionally, but a
+                    // post-flip non-CONFIRM CSV branch reads obhod and emits "".
+                    if (Default.ADD_MODIFICATOR.equals(modificator)
+                            || Default.EDIT_MODIFICATOR.equals(modificator)) {
+                        objectsDao.updateModificator(objId, Default.EDIT_MODIFICATOR);
+                    }
                     Intent intent = new Intent(AddOprToLine.this, DefectActivity.class);
                     intent.putExtra("objId", objId);
                     intent.putExtra("isAddOpr", true);

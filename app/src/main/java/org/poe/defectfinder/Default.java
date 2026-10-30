@@ -10,4 +10,7 @@ public class Default {
 //    public static String FIND_DEFECT = "find";
 //    public static String REMOVE_DEFECT = "clear";
 
+    public static boolean isHighVoltage(int rawResource) {
+        return rawResource == R.raw.line35 || rawResource == R.raw.ps;
+    }
 }

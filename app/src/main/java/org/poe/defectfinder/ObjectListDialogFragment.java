@@ -22,13 +22,20 @@ import java.util.List;
 
 public class ObjectListDialogFragment extends DialogFragment {
 
+    // Оновлений інтерфейс з requestCode
     public interface OnInputListener {
-        void sendInput(String input);
+        void sendInput(String input, int requestCode);
     }
+
+    // Константи для розрізнення спіннерів
+    public static final int REQUEST_CODE_GROUP = 1;
+    public static final int REQUEST_CODE_DEFECT = 2;
+    public static final int REQUEST_CODE_SUBGROUP = 3;
 
     public OnInputListener mOnInputListener;
     private List<String> objects;
     private String hint;
+    private int requestCode; // Додали поле для зберігання коду запиту
 
     private EditText mInput;
     private ListView mList;
@@ -40,11 +47,7 @@ public class ObjectListDialogFragment extends DialogFragment {
         assert getArguments() != null;
         objects = getArguments().getStringArrayList("OBJECTS");
         hint = getArguments().getString("HINT");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+        requestCode = getArguments().getInt("REQUEST_CODE", 0); // Читаємо код запиту
     }
 
     @Nullable
@@ -57,12 +60,13 @@ public class ObjectListDialogFragment extends DialogFragment {
         mList = view.findViewById(R.id.list_view);
         dialogHint = view.findViewById(R.id.dialog_hint_tv);
         dialogHint.setText(hint);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, objects);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, new ArrayList<>(objects));
         mList.setAdapter(adapter);
+
         mInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
@@ -72,14 +76,16 @@ public class ObjectListDialogFragment extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
+
         mList.setOnItemClickListener((parent, view1, position, id) -> {
             String input = mList.getItemAtPosition(position).toString();
-            mOnInputListener.sendInput(input);
+            // Передаємо input разом з requestCode
+            mOnInputListener.sendInput(input, requestCode);
             dismiss();
         });
+
         return view;
     }
 
@@ -89,17 +95,24 @@ public class ObjectListDialogFragment extends DialogFragment {
         try {
             mOnInputListener = (OnInputListener) getActivity();
         } catch (ClassCastException e) {
-            Log.e("dialog", "onAttach: ClassCastException: "
-                    + e.getMessage());
+            Log.e("dialog", "onAttach: ClassCastException: " + e.getMessage());
         }
     }
 
-    public static ObjectListDialogFragment newInstance(ArrayList<String> objects, String hint) {
+    // Оновлений метод newInstance з requestCode
+    public static ObjectListDialogFragment newInstance(ArrayList<String> objects, String hint, int requestCode) {
         ObjectListDialogFragment fragment = new ObjectListDialogFragment();
         Bundle args = new Bundle();
         args.putStringArrayList("OBJECTS", objects);
         args.putString("HINT", hint);
+        args.putInt("REQUEST_CODE", requestCode); // Додаємо код запиту
         fragment.setArguments(args);
         return fragment;
+    }
+
+    // Додатковий метод для зворотної сумісності (якщо десь використовується старий варіант)
+    @Deprecated
+    public static ObjectListDialogFragment newInstance(ArrayList<String> objects, String hint) {
+        return newInstance(objects, hint, 0);
     }
 }
